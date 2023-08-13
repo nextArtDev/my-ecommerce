@@ -38,15 +38,19 @@ export function UserAuthForm() {
     },
   })
 
-  function onSubmit(data: z.infer<typeof FormSchema>) {
+  async function onSubmit(data: z.infer<typeof FormSchema>) {
     try {
       //we pass each provider we used
-      signIn('credentials', {
-        ...data,
-        redirect: false,
-      })
-      router.push('/')
-      //   axios.post('/api/login', JSON.stringify(data))
+      const res = await axios.post('/api/register', JSON.stringify(data))
+      console.log('res', res.data)
+      // if ((res.data.response.status = 409)) {
+      //   router.push(`activation/${data.phone}`)
+      // }
+      // await signIn('credentials', {
+      //   ...data,
+      //   redirect: false,
+      // })
+      // router.push('/')
       // toast({
       //   title: 'You submitted the following values:',
       //   description: (
@@ -55,12 +59,18 @@ export function UserAuthForm() {
       //     </pre>
       //   ),
       // })
-    } catch (error) {
-      toast({
-        title: 'شما هنوز ثبت نام نکرده‌اید',
-        variant: 'destructive',
-      })
+      form.reset()
+      router.push('/')
+      console.log(res)
+    } catch (error: any) {
+      // toast({
+      //   title: 'شما هنوز ثبت نام نکرده‌اید',
+      //   variant: 'destructive',
+      // })
       console.log(error)
+      if ((error.response.status = 409)) {
+        router.push(`/sign-up`)
+      }
     }
   }
 

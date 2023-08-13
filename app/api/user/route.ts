@@ -17,12 +17,12 @@ const userSchema = z.object({
 export async function POST(req: Request) {
   try {
     const body = await req.json()
-    const { phone } = userSchema.parse(body)
+    const { phone, name } = userSchema.parse(body)
 
     const existingUserByPhone = await prisma.user.findUnique({
       where: { phone },
     })
-    if (existingUserByPhone) {
+    if (existingUserByPhone && existingUserByPhone.isVerified) {
       return NextResponse.json(
         {
           user: null,
@@ -30,10 +30,27 @@ export async function POST(req: Request) {
         },
         { status: 409 }
       )
+    } else if (existingUserByPhone && !existingUserByPhone.isVerified) {
+      const newUser = await prisma.user.update({
+        where: {
+          phone,
+        },
+        data: {
+          name,
+        },
+      })
+      return NextResponse.json(
+        {
+          user: newUser,
+          message: 'کاربر با موفقیت آپدیت شد.',
+        },
+        { status: 201 }
+      )
     }
     const newUser = await prisma.user.create({
       data: {
         phone,
+        name,
       },
     })
 

@@ -20,7 +20,6 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
     const { phoneNumber, verificationCode } = body
-    console.log(phoneNumber, verificationCode)
 
     if (!phoneNumber || !verificationCode) {
       return NextResponse.json(
@@ -36,7 +35,7 @@ export async function POST(req: NextRequest) {
         phone: phoneNumber,
       },
     })
-    console.log(user)
+    console.log('finding user', user)
     if (!user) {
       return NextResponse.json(
         {
@@ -63,7 +62,7 @@ export async function POST(req: NextRequest) {
       )
     }
     const verificationDate = new Date(
-      user.verificationDate.getTime() + 240 * 1000
+      user.verificationDate.getTime() + 480 * 1000
     )
     if (verificationDate < new Date()) {
       user.verificationCode = null
@@ -84,7 +83,7 @@ export async function POST(req: NextRequest) {
         verificationDate: new Date(),
       },
     })
-    console.log(verificationCode)
+
     return NextResponse.json(
       {
         phoneNumber,
@@ -93,7 +92,6 @@ export async function POST(req: NextRequest) {
       { status: 201 }
     )
   } catch (error) {
-    console.log(error)
     return NextResponse.json(
       {
         message: 'مشکلی پیش آمده. لطفا دوباره امتحان کنید.',

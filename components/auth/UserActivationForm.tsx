@@ -36,19 +36,22 @@ export function UserActivationForm({ phoneNumber: phone }: pageProps) {
     },
   })
 
-  function onSubmit(data: z.infer<typeof ActivationFormSchema>) {
+  async function onSubmit(data: z.infer<typeof ActivationFormSchema>) {
     try {
-      console.log(data)
+      console.log('form data', data.code)
       // axios.post('/api/user', JSON.stringify(data))
       // router.push('/sign-in')
 
-      axios.post(
+      const response = await axios.post(
         '/api/otp',
         JSON.stringify({
           verificationCode: Number(data.code),
           phoneNumber: phone,
         })
       )
+
+      // console.log('form data, code', typeof data.code)
+      // console.log('form data, phone ', Number(phone))
       router.push(`/`)
 
       // toast({
