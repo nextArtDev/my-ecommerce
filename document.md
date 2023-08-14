@@ -34,3 +34,11 @@ export async function POST(req: Request) {
 ```typescript
       phone: z.string().regex(new RegExp('^09\\d{9}$')),
 ```
+
+## payment 
+<https://www.npmjs.com/package/zarinpal-pay>
+
+<https://github.com/alitnk/monopay/>
+
+
+<https://youtu.be/tpnjYy1SG08>

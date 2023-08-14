@@ -16,7 +16,8 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { toast } from '@/components/ui/use-toast'
-import axios from 'axios'
+import { useMutation } from '@tanstack/react-query'
+import axios, { AxiosError } from 'axios'
 import { useRouter } from 'next/navigation'
 
 const FormSchema = z.object({
@@ -33,6 +34,9 @@ const FormSchema = z.object({
     .regex(new RegExp('^[+]?[(]?[0-9]{3}[)]?[-s.]?[0-9]{3}[-s.]?[0-9]{4,6}$'), {
       message: 'شماره موبایل معتبر نیست.',
     }),
+  password: z.string().min(6, {
+    message: 'برای رمز عبور حداقل 6 کاراکتر الزامیست.',
+  }),
 })
 
 export function UserSignUpForm() {
@@ -42,34 +46,84 @@ export function UserSignUpForm() {
     defaultValues: {
       name: '',
       phone: '',
+      password: '',
     },
   })
+
+  //react-query
+
+  const { mutate: signUp } = useMutation({
+    mutationFn: async ({
+      name,
+      password,
+      phone,
+    }: z.infer<typeof FormSchema>) => {
+      const payload: z.infer<typeof FormSchema> = { name, password, phone }
+      const { data } = await axios.post('/api/user', payload)
+      return data
+    },
+    onError: (err) => {
+      if (err instanceof AxiosError) {
+        if (err.response?.status === 401) {
+          // return loginToast()
+          return <p>خطا پیش آمده</p>
+        }
+      }
+
+      return toast({
+        title: 'مشکلی پیش آمده.',
+        description: 'لطفا بعدا امتحان کنید.',
+        variant: 'destructive',
+      })
+    },
+    onSuccess: async (data) => {
+      // turn pathname /r/mycommunity/submit into /r/mycommunity
+      // const newPathname = pathname.split('/').slice(0, -1).join('/')
+      // router.push(`${pathname}`)
+      // console.log(dialogRef.current)
+      // dialogRef?.current?.disabled = 'true'
+
+      // router.refresh()
+      console.log(data)
+      console.log(data.phone)
+
+      const { user } = data
+      console.log(user.phone)
+      await axios.post(`/api/activation`, JSON.stringify(user))
+      // console.log(data)
+      router.push(`/activation/${user.phone}`)
+      return toast({
+        title: 'کد تایید بر روی شماره موبایل شما ارسال شد.',
+        description: 'کد تایید را وارد کنید.',
+        variant: 'default',
+      })
+    },
+  })
+
+  //form submition
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     // console.log(data)
     // axios.post('/api/user', JSON.stringify(data))
     // router.push('/sign-in')
-    try {
-      const response = await axios.post(`/api/user`, JSON.stringify(data))
-      console.log('response data', response.data.user)
-      if (response.data.user) {
-        await axios.post(`/api/activation`, JSON.stringify(data))
-        router.push(`/activation/${data.phone}`)
-      } else {
-        console.log(response.data)
-      }
-    } catch (error: any) {
-      console.log(error.response.data.message)
+    // try {
+    //   const response = await axios.post(`/api/user`, JSON.stringify(data))
+    //   console.log('response data', response.data.user)
+    //   if (response.data.user) {
+    //     await axios.post(`/api/activation`, JSON.stringify(data))
+    //     router.push(`/activation/${data.phone}`)
+    //   } else {
+    //     console.log(response.data)
+    //   }
+    // } catch (error: any) {
+    //   console.log(error.response.data.message)
+    // }
+    const payload: z.infer<typeof FormSchema> = {
+      name: data.name,
+      password: data.password,
+      phone: data.phone,
     }
-
-    // toast({
-    //   title: 'You submitted the following values:',
-    //   description: (
-    //     <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-    //       <code className="text-white">{JSON.stringify(data, null, 2)}</code>
-    //     </pre>
-    //   ),
-    // })
+    signUp(payload)
   }
 
   return (
@@ -111,7 +165,22 @@ export function UserSignUpForm() {
             </FormItem>
           )}
         />
-
+        <FormField
+          control={form.control}
+          name="password"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>رمز عبور</FormLabel>
+              <FormControl>
+                <Input type="password" placeholder="********" {...field} />
+              </FormControl>
+              <FormDescription className="text-white/50">
+                از حروف بزرگ، کوچک واعداد برای رمز عبور استفاده کنید.
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
         <Button
           type="submit"
           className="bg-blue-950 hover:bg-gray-gradient hover:text-blue-950 "

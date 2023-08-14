@@ -24,8 +24,8 @@ export async function POST(req: NextRequest) {
   )
   try {
     const body = await req.json()
-    const { phone, name } = body
-    console.log(phone)
+    console.log(body)
+    const { phone } = body
 
     // const existingUserByPhone = await prisma.user.findUnique({
     //   where: { phone },
@@ -59,12 +59,12 @@ export async function POST(req: NextRequest) {
       where: { phone },
     })
     if (!user) {
-      const user = await prisma.user.create({
-        data: {
-          phone,
-          name,
+      return NextResponse.json(
+        {
+          message: 'شما هنوز ثبت نام نکرده‌اید.',
         },
-      })
+        { status: 401 }
+      )
     }
     // await prisma.user.findUnique({
     //   where: {

@@ -27,6 +27,9 @@ const FormSchema = z.object({
     .regex(new RegExp('^[+]?[(]?[0-9]{3}[)]?[-s.]?[0-9]{3}[-s.]?[0-9]{4,6}$'), {
       message: 'شماره موبایل معتبر نیست.',
     }),
+  password: z.string().min(8, {
+    message: 'رمز عبور بیش از 7 کاراکتر است.',
+  }),
 })
 
 export function UserAuthForm() {
@@ -35,21 +38,23 @@ export function UserAuthForm() {
     resolver: zodResolver(FormSchema),
     defaultValues: {
       phone: '',
+      password: '',
     },
   })
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     try {
       //we pass each provider we used
-      const res = await axios.post('/api/register', JSON.stringify(data))
-      console.log('res', res.data)
+      // const res = await axios.post('/api/register', JSON.stringify(data))
+      // console.log('res', res.data)
       // if ((res.data.response.status = 409)) {
       //   router.push(`activation/${data.phone}`)
       // }
-      // await signIn('credentials', {
-      //   ...data,
-      //   redirect: false,
-      // })
+      await signIn('credentials', {
+        data,
+        redirect: false,
+      })
+      console.log(data)
       // router.push('/')
       // toast({
       //   title: 'You submitted the following values:',
@@ -59,9 +64,9 @@ export function UserAuthForm() {
       //     </pre>
       //   ),
       // })
-      form.reset()
-      router.push('/')
-      console.log(res)
+      // form.reset()
+      // router.push('/')
+      // console.log(res)
     } catch (error: any) {
       // toast({
       //   title: 'شما هنوز ثبت نام نکرده‌اید',
@@ -89,6 +94,21 @@ export function UserAuthForm() {
                   {...field}
                   className="placeholder:text-gray-400"
                 />
+              </FormControl>
+
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="password"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>رمز عبور</FormLabel>
+              <FormControl>
+                <Input type="password" placeholder="*********" {...field} />
               </FormControl>
 
               <FormMessage />

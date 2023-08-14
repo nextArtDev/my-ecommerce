@@ -50,7 +50,7 @@ export async function POST(req: NextRequest) {
         {
           message: 'کد تایید اشتباه است.',
         },
-        { status: 400 }
+        { status: 402 }
       )
     }
     if (!user.verificationDate) {
@@ -58,7 +58,7 @@ export async function POST(req: NextRequest) {
         {
           message: 'کد ارسالی معتبر نیست.',
         },
-        { status: 400 }
+        { status: 408 }
       )
     }
     const verificationDate = new Date(

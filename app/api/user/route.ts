@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/prisma'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
+import * as bcrypt from 'bcrypt'
 // Define Zod Schema for input validation
 
 const userSchema = z.object({
@@ -12,51 +13,49 @@ const userSchema = z.object({
   phone: z.string().regex(new RegExp('^09\\d{9}$'), {
     message: 'شماره موبایل معتبر نیست.',
   }),
+  password: z.string().min(6, {
+    message: 'برای رمز عبور حداقل 6 کاراکتر الزامیست.',
+  }),
 })
 
 export async function POST(req: Request) {
   try {
     const body = await req.json()
-    const { phone, name } = userSchema.parse(body)
+    const { phone, name, password } = userSchema.parse(body)
 
     const existingUserByPhone = await prisma.user.findUnique({
       where: { phone },
     })
-    if (existingUserByPhone && existingUserByPhone.isVerified) {
+    if (existingUserByPhone) {
       return NextResponse.json(
         {
           user: null,
           message: 'کاربر با این شماره تلفن وجود دارد.',
         },
-        { status: 409 }
-      )
-    } else if (existingUserByPhone && !existingUserByPhone.isVerified) {
-      const newUser = await prisma.user.update({
-        where: {
-          phone,
-        },
-        data: {
-          name,
-        },
-      })
-      return NextResponse.json(
-        {
-          user: newUser,
-          message: 'کاربر با موفقیت آپدیت شد.',
-        },
-        { status: 201 }
+        { status: 403 }
       )
     }
+    // } else if (existingUserByPhone && !existingUserByPhone.isVerified) {
+    //   return NextResponse.json(
+    //     {
+    //       user: null,
+    //       message: 'شما هنوز اکانت خود را از طریق اس‌ام‌اس فعال نکرده‌اید.',
+    //     },
+    //     { status: 401 }
+    //   )
+    // }
     const newUser = await prisma.user.create({
       data: {
         phone,
         name,
+        password: await bcrypt.hash(password, 10),
       },
     })
-
+    const { password: userPassword, ...rest } = newUser
+    console.log(newUser)
     return NextResponse.json(
       {
-        user: newUser,
+        user: rest,
         message: 'کاربر با موفقیت ثبت نام شد.',
       },
       { status: 201 }

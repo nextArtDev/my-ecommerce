@@ -3,7 +3,7 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 import * as z from 'zod'
-import axios from 'axios'
+import axios, { AxiosError } from 'axios'
 import { Button } from '@/components/ui/button'
 import {
   Form,
@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { toast } from '@/components/ui/use-toast'
+import { useMutation } from '@tanstack/react-query'
 import { signIn } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 
@@ -36,49 +37,153 @@ export function UserActivationForm({ phoneNumber: phone }: pageProps) {
     },
   })
 
-  async function onSubmit(data: z.infer<typeof ActivationFormSchema>) {
-    try {
-      console.log('form data', data.code)
-      // axios.post('/api/user', JSON.stringify(data))
-      // router.push('/sign-in')
+  //react-query
 
-      const response = await axios.post(
+  const { mutate: activation } = useMutation({
+    mutationFn: async ({ code }: z.infer<typeof ActivationFormSchema>) => {
+      const payload: z.infer<typeof ActivationFormSchema> = { code }
+      // const { data } = await axios.post('/api/user', payload)
+      const { data } = await axios.post(
         '/api/otp',
         JSON.stringify({
-          verificationCode: Number(data.code),
+          verificationCode: Number(payload.code),
           phoneNumber: phone,
         })
       )
+      return data
+    },
+    onError: (err) => {
+      if (err instanceof AxiosError) {
+        if (err.response?.status === 409) {
+          // return loginToast()
+          // return <p>وارد کردن کد تایید الزامی است.</p>
+          return toast({
+            title: 'وارد کردن کد تایید الزامی است.',
+            // description: 'لطفا بعدا امتحان کنید.',
+            variant: 'destructive',
+          })
+        }
+      }
+      if (err instanceof AxiosError) {
+        if (err.response?.status === 400) {
+          // return loginToast()
+          // return <p>هنوز ثبت نام نکرده‌اید.</p>
+          return toast({
+            title: 'هنوز ثبت نام نکرده‌اید.',
+            // description: 'لطفا بعدا امتحان کنید.',
+            variant: 'destructive',
+          })
+        }
+      }
+      if (err instanceof AxiosError) {
+        if (err.response?.status === 401) {
+          // return loginToast()
+          // return <p>کد تایید منقضی شده است..</p>
+          return toast({
+            title: 'کد تایید منقضی شده است.',
+            // description: 'لطفا بعدا امتحان کنید.',
+            variant: 'destructive',
+          })
+        }
+      }
+      if (err instanceof AxiosError) {
+        if (err.response?.status === 402) {
+          // return loginToast()
+          // return <p>کد ارسالی معتبر نیست.</p>
+          return toast({
+            title: 'کد ارسالی معتبر نیست.',
+            // description: 'لطفا بعدا امتحان کنید.',
+            variant: 'destructive',
+          })
+        }
+      }
 
-      // console.log('form data, code', typeof data.code)
-      // console.log('form data, phone ', Number(phone))
+      // return toast({
+      //   title: 'مشکلی پیش آمده.',
+      //   description: 'لطفا بعدا امتحان کنید.',
+      //   variant: 'destructive',
+      // })
+    },
+    onSuccess: async (data) => {
+      // turn pathname /r/mycommunity/submit into /r/mycommunity
+      // const newPathname = pathname.split('/').slice(0, -1).join('/')
+      // router.push(`${pathname}`)
+      // console.log(dialogRef.current)
+      // dialogRef?.current?.disabled = 'true'
+
+      // router.refresh()
+      console.log(data)
+      // console.log(data.phone)
       router.push(`/`)
-
-      // toast({
-      //   title: 'You submitted the following values:',
-      //   description: (
-      //     <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-      //       <code className="text-white">{JSON.stringify(data, null, 2)}</code>
-      //     </pre>
-      //   ),
-      // })
-
-      //   axios.post('/api/login', JSON.stringify(data))
-      // toast({
-      //   title: 'You submitted the following values:',
-      //   description: (
-      //     <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-      //       <code className="text-white">{JSON.stringify(data, null, 2)}</code>
-      //     </pre>
-      //   ),
-      // })
-    } catch (error) {
-      toast({
-        title: 'شما هنوز ثبت نام نکرده‌اید',
-        variant: 'destructive',
+      return toast({
+        title: 'اکانت شما با موفقیت فعال شد.',
+        // description: 'لطفا بعدا امتحان کنید.',
+        variant: 'default',
       })
-      console.log(error)
+      // const { user } = data
+      // console.log(user.phone)
+      // await axios.post(`/api/activation`, JSON.stringify(user))
+      // console.log(data)
+      // router.push(`/activation/${user.phone}`)
+      // return toast({
+      //   title: 'دیدگاه شما منتشر شد.',
+      //   description: 'از شما ممنونیم که نظر خود را با ما در میان گذاشتید.',
+      //   variant: 'default',
+      // })
+    },
+  })
+  async function onSubmit(data: z.infer<typeof ActivationFormSchema>) {
+    const payload: z.infer<typeof ActivationFormSchema> = {
+      code: data.code,
     }
+    activation(payload)
+    // try {
+    //   console.log('form data', data.code)
+    // const res = await axios.post(
+    //   `/api/activation`,
+    //   JSON.stringify({ ...data, phone })
+    // )
+    // axios.post('/api/user', JSON.stringify(data))
+    // router.push('/sign-in')
+
+    // const response = await axios.post(
+    //   '/api/otp',
+    //   JSON.stringify({
+    //     verificationCode: Number(data.code),
+    //     phoneNumber: phone,
+    //   })
+    // )
+    // console.log(response)
+
+    // console.log('form data, code', typeof data.code)
+    // console.log('form data, phone ', Number(phone))
+    // router.push(`/`)
+
+    // toast({
+    //   title: 'You submitted the following values:',
+    //   description: (
+    //     <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
+    //       <code className="text-white">{JSON.stringify(data, null, 2)}</code>
+    //     </pre>
+    //   ),
+    // })
+
+    //   axios.post('/api/login', JSON.stringify(data))
+    // toast({
+    //   title: 'You submitted the following values:',
+    //   description: (
+    //     <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
+    //       <code className="text-white">{JSON.stringify(data, null, 2)}</code>
+    //     </pre>
+    //   ),
+    // })
+    // } catch (error) {
+    //   toast({
+    //     title: 'شما هنوز ثبت نام نکرده‌اید',
+    //     variant: 'destructive',
+    //   })
+    //   console.log(error)
+    // }
   }
 
   return (
@@ -108,7 +213,7 @@ export function UserActivationForm({ phoneNumber: phone }: pageProps) {
           type="submit"
           className="bg-blue-950 hover:bg-gray-gradient hover:text-blue-950 "
         >
-          عضویت
+          تایید{' '}
         </Button>
       </form>
     </Form>
