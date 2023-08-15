@@ -50,11 +50,15 @@ export function UserAuthForm() {
       // if ((res.data.response.status = 409)) {
       //   router.push(`activation/${data.phone}`)
       // }
-      await signIn('credentials', {
-        data,
+      const signdata = await signIn('credentials', {
+        // `${JSON.stringify(data)}`,
+        ...data,
         redirect: false,
       })
       console.log(data)
+
+      console.log(signdata)
+
       // router.push('/')
       // toast({
       //   title: 'You submitted the following values:',

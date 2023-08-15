@@ -34,8 +34,8 @@ const FormSchema = z.object({
     .regex(new RegExp('^[+]?[(]?[0-9]{3}[)]?[-s.]?[0-9]{3}[-s.]?[0-9]{4,6}$'), {
       message: 'شماره موبایل معتبر نیست.',
     }),
-  password: z.string().min(6, {
-    message: 'برای رمز عبور حداقل 6 کاراکتر الزامیست.',
+  password: z.string().min(8, {
+    message: 'برای رمز عبور حداقل 8 کاراکتر الزامیست.',
   }),
 })
 
@@ -64,9 +64,13 @@ export function UserSignUpForm() {
     },
     onError: (err) => {
       if (err instanceof AxiosError) {
-        if (err.response?.status === 401) {
+        if (err.response?.status === 403) {
           // return loginToast()
-          return <p>خطا پیش آمده</p>
+          return toast({
+            title: 'کاربر با این شماره موبایل وجود دارد.',
+            //  description: 'لطفا بعدا امتحان کنید.',
+            variant: 'destructive',
+          })
         }
       }
 
@@ -84,11 +88,11 @@ export function UserSignUpForm() {
       // dialogRef?.current?.disabled = 'true'
 
       // router.refresh()
-      console.log(data)
-      console.log(data.phone)
+      // console.log(data)
+      // console.log(data.phone)
 
       const { user } = data
-      console.log(user.phone)
+      // console.log(user.phone)
       await axios.post(`/api/activation`, JSON.stringify(user))
       // console.log(data)
       router.push(`/activation/${user.phone}`)
