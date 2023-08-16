@@ -52,7 +52,7 @@ export function UserSignUpForm() {
 
   //react-query
 
-  const { mutate: signUp } = useMutation({
+  const { mutate: signUp, isLoading } = useMutation({
     mutationFn: async ({
       name,
       password,
@@ -187,6 +187,7 @@ export function UserSignUpForm() {
         />
         <Button
           type="submit"
+          disabled={isLoading}
           className="bg-blue-950 hover:bg-gray-gradient hover:text-blue-950 "
         >
           عضویت

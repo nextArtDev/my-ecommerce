@@ -8,7 +8,8 @@ export default async function Home() {
     <main className="flex min-h-screen flex-col items-center justify-between p-24">
       <h3 className="bg-red-500 text-5xl">
         {' '}
-        {session?.user.name || 'nothing'}
+        {session?.user.name || 'nothing'} - {session?.user.id || 'nothing'}{' '}
+        {session?.user.name || 'nothing'} - {session?.user.id || 'nothing'}
       </h3>
     </main>
   )

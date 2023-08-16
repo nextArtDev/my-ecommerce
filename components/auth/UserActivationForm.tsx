@@ -39,7 +39,7 @@ export function UserActivationForm({ phoneNumber: phone }: pageProps) {
 
   //react-query
 
-  const { mutate: activation } = useMutation({
+  const { mutate: activation, isLoading } = useMutation({
     mutationFn: async ({ code }: z.infer<typeof ActivationFormSchema>) => {
       const payload: z.infer<typeof ActivationFormSchema> = { code }
       // const { data } = await axios.post('/api/user', payload)
@@ -211,6 +211,7 @@ export function UserActivationForm({ phoneNumber: phone }: pageProps) {
 
         <Button
           type="submit"
+          disabled={isLoading}
           className="bg-blue-950 hover:bg-gray-gradient hover:text-blue-950 "
         >
           تایید{' '}

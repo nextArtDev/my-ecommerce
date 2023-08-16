@@ -1,61 +1,3 @@
-// import { NextAuthOptions } from 'next-auth'
-// import CredentialsProvider from 'next-auth/providers/credentials'
-// import { PrismaAdapter } from '@next-auth/prisma-adapter'
-// import { prisma } from './prisma'
-
-// export const authOptions: NextAuthOptions = {
-//   adapter: PrismaAdapter(prisma),
-//   session: {
-//     strategy: 'jwt',
-//   },
-//   pages: {
-//     signIn: '/sign-in',
-//   },
-//   secret: process.env.NEXTAUTH_SECRET,
-//   providers: [
-//     CredentialsProvider({
-//       name: 'Credentials',
-//       credentials: {
-//         phone: {
-//           label: 'شماره تلفن',
-//           type: 'text',
-//           placeholder: '09130000000',
-//         },
-//       },
-//       async authorize(credentials, req) {
-//         const res = await fetch('/api/register', {
-//           method: 'POST',
-//           body: JSON.stringify(credentials),
-//           headers: { 'Content-Type': 'application/json' },
-//         })
-//         const user = await res.json()
-
-//         // if (res.ok && user) {
-//         //   return user
-//         // }
-//         // return null
-//         const { phone } = user
-//         try {
-//           const user = await prisma.user.findUnique({
-//             where: {
-//               phone,
-//             },
-//           })
-//           if (!user) {
-//             return null
-//           }
-//           if (!user.isVerified) {
-//             return null
-//           }
-//           if (user) {
-//             return user
-//           }
-//         } catch (error) {}
-//       },
-//     }),
-//   ],
-// }
-
 import { NextAuthOptions, getServerSession } from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
 
@@ -117,23 +59,6 @@ export const authOptions: NextAuthOptions = {
           return null
         }
 
-        //   const res = await fetch('http://localhost:3000/api/user', {
-        //     method: 'POST',
-        //     headers: {
-        //       'Content-Type': 'application/json',
-        //     },
-        //     body: JSON.stringify({
-        //       phone: credentials?.phone,
-        //       password: credentials?.password,
-        //     }),
-        //   })
-        //   const user = await res.json()
-
-        //   if (user) {
-        //     return user
-        //   } else {
-        //     return null
-        //   }
         return {
           id: `${existingUser.id}`,
           phone: existingUser.phone,
@@ -169,18 +94,7 @@ export const authOptions: NextAuthOptions = {
         // token.isVerified = user.isVerified
       }
       return token
-      // })
     },
-    // if (!dbUser) {
-    //   token.id = user!.id
-    //   return token
-    // }
-    // return {
-    //   id: dbUser.id,
-    //   role: dbUser.role,
-    //   phone: dbUser.phone,
-    //   name: dbUser.name,
-    // }
   },
 
   //FOR ROLE BASED

@@ -55,11 +55,8 @@ export function UserAuthForm() {
         ...data,
         redirect: false,
       })
-      console.log(data)
 
-      console.log(signdata)
-
-      // router.push('/')
+      router.push('/')
       // toast({
       //   title: 'You submitted the following values:',
       //   description: (
