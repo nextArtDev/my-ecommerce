@@ -94,7 +94,32 @@ export default function Home() {
 }
 ```
 
-an example of using that for auth:
+### How can initialize functions in React Toolkit
+
+```typescript
+import { createSlice, PayloadAction } from '@reduxjs/toolkit'
+
+type InitialState = {
+  isOpen: boolean
+
+}
+
+const initialState: InitialState = {
+  isOpen: false,
+
+}
+
+const modalSlice = createSlice({
+  name: 'modal',
+  initialState,
+  reducers: {},
+})
+
+export const { } = modalSlice.actions
+export const modalReducer = modalSlice.reducer
+```
+
+### an example of using that for auth:
 
 ```typescript
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
@@ -174,4 +199,221 @@ export default function Home() {
 //   const isAuth = useAppSelector((state) => state.authReducer.value.isAuth)
 //{isAuth && <p>Is Auth</p>}
   
+```
+
+## React video
+<https://www.remotion.dev/>
+
+## Learn React Query in 50 minutes
+
+### Query:
+_Getting data from somewhere_ **GET**
+
+
+### Mutation:
+_Changing some type of data_ **POST , PUT, DELETE**
+
+## Standardize using Dialog Component
+```typescript
+
+interface ModalProps {
+  title: string;
+  description: string;
+  isOpen: boolean;
+  onClose: () => void;
+  children?: React.ReactNode;
+}
+
+export const Modal: React.FC<ModalProps> = ({
+  title,
+  description,
+  isOpen,
+  onClose,
+  children
+}) => {
+  //if its not open, open it!
+  const onChange = (open: boolean) => {
+    if (!open) {
+      onClose();
+    }
+  };
+
+  return ( 
+    <Dialog open={isOpen} onOpenChange={onChange}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>{title}</DialogTitle>
+          <DialogDescription>
+            {description}
+          </DialogDescription>
+        </DialogHeader>
+        <div>
+        //content of everything else in our modal
+          {children}
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+```
+
+## getAuthSession()
+
+
+```typescript
+ const session = await getAuthSession()
+   console.log(session)
+ <h3 className="bg-red-500 text-5xl">
+        {' '}
+        {session?.user.name || 'nothing'} - {session?.user.id || 'nothing'}{' '}
+        {session?.user.name || 'nothing'} - {session?.user.id || 'nothing'}
+      </h3> 
+```
+
+## Modal Provider
+
+we want to add modal to the layout of our app, we want this modal to be available through out our application, we dont care if weather we trigger it from the products page or the navigation bar or from a completely different rout organization. 
+for that, we should create a provider, we create it in root of our app.
+
+```typescript
+"use client";
+
+import { useEffect, useState } from "react";
+
+import { StoreModal } from "@/components/modals/store-modal";
+
+export const ModalProvider = () => {
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  if (!isMounted) {
+    return null;
+  }
+
+  return (
+    <>
+      <StoreModal />
+    </>
+  );
+}
+
+```
+
+## Hydration Error
+when we want to add a _client component_ inside a _server component_ we have to ensure that they're not be any hydration errors, esp with modals, that can cause the synchronization between the server-side rendering and the client side rendering, for example the server does not have any modal open but the client will, and that's going to through a hydration error. 
+we ensure until this lifecycle has run which is only sth happen in the client component , we return null, so in server-side rendering we return null, so there is no hydration error possible happening, after server-side we return components.
+
+
+```typescript
+"use client";
+
+export const ModalProvider = () => {
+  const [isMounted, setIsMounted] = useState(false);
+//only happens in client component
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+// return null if its server-side 
+
+  if (!isMounted) {
+    return null;
+  }
+//after this, we're in client
+  return (
+    <>
+      <StoreModal />
+    </>
+  );
+}
+
+```
+to use it, we should extract it, in layout and everywhere we want to use it.
+layout.tsx
+```typescript
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  return (
+    <html lang="en" dir="rtl">
+      <body className={inter.className}>
+            <ModalProvider />
+            {children}
+      </body>
+    </html>
+  )
+}
+```
+
+and for example if we want to use it in page.tsx:
+
+
+## Shadcn and React-hook-form
+
+```typescript
+
+  const [loading, setLoading] = useState(false)
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      name: '',
+    },
+  })
+
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    try {
+      setLoading(true)
+      const response = await axios.post('/api/stores', values)
+      window.location.assign(`/${response.data.id}`)
+    } catch (error) {
+      //   toast.error('Something went wrong')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return(
+
+    <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)}>
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>نام</FormLabel>
+                      <FormControl>
+                        <Input
+                          disabled={loading}
+                          placeholder="فروشگاه"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <div className="pt-6 space-x-2 gap-2 flex items-center justify-start w-full">
+                  <Button disabled={loading} type="submit">
+                    ادامه دادن
+                  </Button>
+                  <Button
+                    disabled={loading}
+                    variant="outline"
+                    // onClick={storeModal.onClose}
+                    onClick={() => dispatch(onClose())}
+                  >
+                    صرف نظر
+                  </Button>
+                </div>
+              </form>
+            </Form>
+  )
 ```
