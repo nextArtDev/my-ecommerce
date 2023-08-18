@@ -1,7 +1,7 @@
 'use client'
 
 import * as z from 'zod'
-import axios from 'axios'
+import axios, { AxiosError } from 'axios'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 
@@ -26,6 +26,9 @@ import {
 import { Button } from '@/components/ui/button'
 import { Modal } from '../modal'
 import { onClose } from '@/redux/slices/modalSlice'
+import { useMutation } from '@tanstack/react-query'
+import { toast } from '../ui/use-toast'
+import { useCustomToasts } from '@/hooks/use-custom-toasts'
 
 const formSchema = z.object({
   name: z.string().min(1, { message: 'نام فروشگاه باید بیش از یک حرف باشد.' }),
@@ -36,8 +39,7 @@ export const StoreModal = () => {
   const { isOpen } = useAppSelector((state) => state.modalReducer)
   //   const storeModal = useStoreModal()
   const router = useRouter()
-
-  const [loading, setLoading] = useState(false)
+  const { loginToast } = useCustomToasts()
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -46,16 +48,40 @@ export const StoreModal = () => {
     },
   })
 
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    try {
-      setLoading(true)
-      const response = await axios.post('/api/stores', values)
-      window.location.assign(`/${response.data.id}`)
-    } catch (error) {
-      //   toast.error('Something went wrong')
-    } finally {
-      setLoading(false)
+  //React Query
+
+  const { mutate: createStore, isLoading } = useMutation({
+    mutationFn: async ({ name }: z.infer<typeof formSchema>) => {
+      const payload: z.infer<typeof formSchema> = { name }
+      const { data } = await axios.post('/api/stores', payload)
+      return data
+    },
+    onError: (err) => {
+      if (err instanceof AxiosError) {
+        if (err.response?.status === 403) {
+          return loginToast()
+        }
+      }
+      return toast({
+        title: 'مشکلی پیش آمده.',
+        description: 'لطفا بعدا امتحان کنید.',
+        variant: 'destructive',
+      })
+    },
+    onSuccess: (data) => {
+      window.location.assign(`/${data.id}`)
+      return toast({
+        title: 'فروشگاه اضافه شد.',
+        // description: 'از شما متشکریم که نظر خود را با ما در میان گذاشتید.',
+        variant: 'default',
+      })
+    },
+  })
+  const onSubmit = async (data: z.infer<typeof formSchema>) => {
+    const payload: z.infer<typeof formSchema> = {
+      name: data.name,
     }
+    createStore(payload)
   }
 
   return (
@@ -80,7 +106,7 @@ export const StoreModal = () => {
                       <FormLabel>نام</FormLabel>
                       <FormControl>
                         <Input
-                          disabled={loading}
+                          disabled={isLoading}
                           placeholder="فروشگاه"
                           {...field}
                         />
@@ -90,11 +116,11 @@ export const StoreModal = () => {
                   )}
                 />
                 <div className="pt-6 space-x-2 gap-2 flex items-center justify-start w-full">
-                  <Button disabled={loading} type="submit">
+                  <Button disabled={isLoading} type="submit">
                     ادامه دادن
                   </Button>
                   <Button
-                    disabled={loading}
+                    disabled={isLoading}
                     variant="outline"
                     // onClick={storeModal.onClose}
                     onClick={() => dispatch(onClose())}

@@ -50,7 +50,7 @@ export function UserAuthForm() {
       // if ((res.data.response.status = 409)) {
       //   router.push(`activation/${data.phone}`)
       // }
-      const signdata = await signIn('credentials', {
+      await signIn('credentials', {
         // `${JSON.stringify(data)}`,
         ...data,
         redirect: false,

@@ -387,20 +387,24 @@ and for example if we want to use it in page.tsx:
                   control={form.control}
                   name="name"
                   render={({ field }) => (
+                    //Importing any item
                     <FormItem>
                       <FormLabel>نام</FormLabel>
                       <FormControl>
                         <Input
                           disabled={loading}
                           placeholder="فروشگاه"
+                          //its for onChange, onBlur, ref, name and so on
                           {...field}
                         />
                       </FormControl>
+                      //For error message and other messages
                       <FormMessage />
                     </FormItem>
                   )}
                 />
                 <div className="pt-6 space-x-2 gap-2 flex items-center justify-start w-full">
+                // type submit means it would trigger onSubmit prop
                   <Button disabled={loading} type="submit">
                     ادامه دادن
                   </Button>
@@ -416,4 +420,81 @@ and for example if we want to use it in page.tsx:
               </form>
             </Form>
   )
+```
+
+## Prisma in SQL
+
+-npm i -D prisma
+
+-npm i @prisma/client
+
+-creating prisma lib folder for not instantly create prisma client
+
+//initializing db file and schema folder
+-npx prisma init
+
+//sync app with schema
+-npx prisma generate
+
+//sync ad with schema
+-npx prisma db push
+
+//Resetting prisma
+-npx prisma migrate reset
+-npx prisma generate
+-npx prisma db push
+
+## Toast Provider (not a shadcn one!)
+
+we first create a file:__toast-provider.tsx__ in provider file,
+
+```typescript
+"use client";
+
+import { Toaster } from "react-hot-toast";
+
+export const ToastProvider = () => {
+  return ( 
+    <Toaster />
+   );
+};
+
+```
+then we add it to root of our app:
+
+```typescript
+
+export default async function RootLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  return (
+    <ClerkProvider>
+      <html lang="en">
+        <body className={inter.className}>
+            <ToastProvider />
+            {children}
+        </body>
+      </html>
+    </ClerkProvider>
+  )
+}
+
+```
+
+## logedin users
+
+```typescript
+import { getAuthSession } from '@/lib/auth'
+
+
+  const session = await getAuthSession()
+  const userId = session?.user.id
+```
+
+## Complete refresh for redirect
+```typescript
+
+window.location.assign(`/${data.id}`)
 ```

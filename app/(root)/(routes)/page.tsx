@@ -1,8 +1,5 @@
 'use client'
-import { Modal } from '@/components/modal'
-import { StoreModal } from '@/components/modals/store-modal'
-import { getAuthSession } from '@/lib/auth'
-import { ModalProvider } from '@/providers/modal-providers'
+
 import { onOpen } from '@/redux/slices/modalSlice'
 
 import { useAppSelector } from '@/redux/store'
@@ -17,9 +14,5 @@ export default function Home() {
   useEffect(() => {
     if (!isOpen) dispatch(onOpen())
   }, [dispatch, isOpen])
-  return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <div className="p-4">{/* <ModalProvider /> */}</div>
-    </main>
-  )
+  return null
 }
