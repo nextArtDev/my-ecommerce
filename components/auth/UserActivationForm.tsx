@@ -33,7 +33,7 @@ export function UserActivationForm({ phoneNumber: phone }: pageProps) {
   const form = useForm<z.infer<typeof ActivationFormSchema>>({
     resolver: zodResolver(ActivationFormSchema),
     defaultValues: {
-      code: undefined,
+      code: '',
     },
   })
 
@@ -112,7 +112,7 @@ export function UserActivationForm({ phoneNumber: phone }: pageProps) {
       // dialogRef?.current?.disabled = 'true'
 
       // router.refresh()
-      console.log(data)
+      // console.log(data)
       // console.log(data.phone)
       router.push(`/`)
       return toast({
@@ -198,9 +198,9 @@ export function UserActivationForm({ phoneNumber: phone }: pageProps) {
               <FormControl>
                 <Input
                   type="number"
-                  placeholder="123456"
+                  placeholder="000000"
                   {...field}
-                  className="placeholder:text-gray-400"
+                  className=" text-lg sm:text-xl font-bold tracking-[0.5rem] md:tracking-[0.75rem] text-center w-48 placeholder:text-gray-400"
                 />
               </FormControl>
 

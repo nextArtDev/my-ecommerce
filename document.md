@@ -498,3 +498,181 @@ import { getAuthSession } from '@/lib/auth'
 
 window.location.assign(`/${data.id}`)
 ```
+## Upload Image
+
+<https://stackoverflow.com/questions/72663673/how-do-i-get-uploaded-image-in-next-js-and-save-it>
+
+```typescript
+import nextConnect from "next-connect";
+import multer from "multer";
+import { v4 as uuidv4 } from "uuid";
+
+let filename = uuidv4() + "-" + new Date().getTime();
+const upload = multer({
+    storage: multer.diskStorage({
+        destination: "./public/uploads/profiles", // destination folder
+        filename: (req, file, cb) => cb(null, getFileName(file)),
+    }),
+});
+
+const getFileName = (file) => {
+    filename +=
+        "." +
+        file.originalname.substring(
+            file.originalname.lastIndexOf(".") + 1,
+            file.originalname.length
+        );
+    return filename;
+};
+
+const apiRoute = nextConnect({
+    onError(error, req, res) {
+        res
+            .status(501)
+            .json({ error: `Sorry something Happened! ${error.message}` });
+    },
+    onNoMatch(req, res) {
+        res.status(405).json({ error: `Method '${req.method}' Not Allowed` });
+    },
+});
+
+apiRoute.use(upload.array("file")); // attribute name you are sending the file by 
+
+apiRoute.post((req, res) => {
+    res.status(200).json({ data: `/uploads/profiles/${filename}` }); // response
+});
+
+export default apiRoute;
+
+export const config = {
+    api: {
+        bodyParser: false, // Disallow body parsing, consume as stream
+    },
+};
+```
+
+### Ethan upload
+<https://ethanmick.com/how-to-upload-a-file-in-next-js-13-app-directory/>
+
+### another
+<https://codersteps.com/articles/building-a-file-uploader-from-scratch-with-next-js-app-directory>
+
+### another
+<https://codesandbox.io/s/nextjs-simple-upload-file-to-server-thyb0?file=/pages/api/file.js>
+
+### ChatGPT
+
+npm i formidable
+
+frontend:
+
+```typescript
+import { useState } from 'react'
+import axios from 'axios'
+
+const FileUpload = () => {
+  const [file, setFile] = useState(null)
+
+  const handleFileChange = (event) => {
+    setFile(event.target.files[0])
+  }
+
+  const handleSubmit = async (event) => {
+    event.preventDefault()
+
+    const formData = new FormData()
+    formData.append('file', file)
+
+    try {
+      const response = await axios.post('/api/upload', formData)
+      console.log(response.data)
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <input type="file" onChange={handleFileChange} />
+      <button type="submit">Upload</button>
+    </form>
+  )
+}
+
+export default FileUpload
+```
+
+backend:
+```typescript
+import fs from 'fs';
+import path from 'path';
+import formidable from 'formidable';
+import { NextApiRequest, NextApiResponse } from 'next';
+
+interface DeleteImageResponse {
+  success: boolean;
+}
+
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
+
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  const form = new formidable.IncomingForm();
+
+  try {
+    const { fields, files } = await new Promise((resolve, reject) => {
+      form.parse(req, (error: any, fields: any, files: any) => {
+        if (error) {
+          console.error(error);
+          reject(error);
+          return;
+        }
+
+        resolve({ fields, files });
+      });
+    });
+
+    const file = files.file;
+
+    // Save the file to the public/images folder
+    const filePath = path.join(process.cwd(), 'public', 'images', file.name);
+
+    await new Promise((resolve, reject) => {
+      fs.rename(file.path, filePath, (error) => {
+        if (error) {
+          console.error(error);
+          reject(error);
+          return;
+        }
+
+        resolve();
+      });
+    });
+
+    res.status(200).json({ message: 'File uploaded successfully' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Internal Server Error');
+  }
+}
+
+export const deleteImage = (imageName: string): DeleteImageResponse => {
+  return new Promise((resolve, reject) => {
+    // Delete the image from the public/images folder
+    const filePath = path.join(process.cwd(), 'public', 'images', imageName);
+
+    fs.unlink(filePath, (error) => {
+      if (error) {
+        console.error(error);
+        reject({ success: false });
+        return;
+      }
+
+      resolve({ success: true });
+    });
+  });
+};
+```
