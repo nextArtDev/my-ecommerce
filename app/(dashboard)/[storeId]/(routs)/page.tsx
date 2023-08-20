@@ -28,7 +28,7 @@ const DashboardPage: React.FC<DashboardPageProps> = async ({ params }) => {
         <Separator />
         <div className="grid gap-4 grid-cols-3">
           <Card>
-            <CardHeader className="flex flex-row items-center justify-evenly space-y-0 pb-2">
+            <CardHeader className="flex flex-col text-center gap-y-2 sm:gap-x-2 sm:text-right sm:flex-row items-center justify-evenly space-y-0 pb-2">
               {/* <DollarSign className="h-4 w-4 text-muted-foreground" /> */}
               <LuDollarSign className="h-4 w-4 text-muted-foreground" />
               <CardTitle className="text-sm font-medium">کل درآمد</CardTitle>
@@ -40,7 +40,7 @@ const DashboardPage: React.FC<DashboardPageProps> = async ({ params }) => {
             </CardContent>
           </Card>
           <Card>
-            <CardHeader className="flex flex-row items-center justify-evenly space-y-0 pb-2">
+            <CardHeader className="flex flex-col text-center gap-y-2 sm:gap-x-2 sm:text-right sm:flex-row items-center justify-evenly space-y-0 pb-2">
               <LuCreditCard className="h-4 w-4 text-muted-foreground" />
               <CardTitle className="text-sm font-medium">فروخته شده</CardTitle>
               {/* <CreditCard className="h-4 w-4 text-muted-foreground" /> */}
@@ -50,7 +50,7 @@ const DashboardPage: React.FC<DashboardPageProps> = async ({ params }) => {
             </CardContent>
           </Card>
           <Card>
-            <CardHeader className="flex flex-row items-center justify-evenly space-y-0 pb-2">
+            <CardHeader className="flex flex-col text-center gap-y-2 sm:gap-x-2 sm:text-right sm:flex-row items-center justify-evenly space-y-0 pb-2">
               <LuPackage className="h-4 w-4 text-muted-foreground" />
               <CardTitle className="text-sm font-medium">
                 محصولات در انبار
@@ -64,7 +64,7 @@ const DashboardPage: React.FC<DashboardPageProps> = async ({ params }) => {
         </div>
         <Card className="col-span-4">
           <CardHeader>
-            <CardTitle>خلاصه</CardTitle>
+            <CardTitle>وضعیت</CardTitle>
           </CardHeader>
           <CardContent className="pl-2">
             {/* <Overview data={graphRevenue} /> */}

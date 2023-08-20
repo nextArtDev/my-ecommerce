@@ -52,7 +52,7 @@
     "eslint": "8.46.0",
     "eslint-config-next": "13.4.13",
     "jsonwebtoken": "^9.0.1",
-    "lucide-react": "^0.265.0",
+    "lucide-react": "^0.263.1",
     "next": "13.4.13",
     "next-auth": "^4.22.5",
     "postcss": "8.4.27",

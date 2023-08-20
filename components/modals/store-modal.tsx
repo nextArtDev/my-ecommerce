@@ -72,7 +72,7 @@ export const StoreModal = () => {
       window.location.assign(`/${data.id}`)
       return toast({
         title: 'فروشگاه اضافه شد.',
-        // description: 'از شما متشکریم که نظر خود را با ما در میان گذاشتید.',
+        // description: '',
         variant: 'default',
       })
     },
@@ -90,8 +90,6 @@ export const StoreModal = () => {
       description="فروشگاه جدیدی برای مدیریت محصولات و دسته‌بندی آنها ایجاد کنید."
       isOpen={isOpen}
       onClose={() => dispatch(onClose())}
-      //   isOpen={storeModal.isOpen}
-      //   onClose={storeModal.onClose}
     >
       <div>
         <div className="space-y-4 py-2 pb-4">
@@ -122,7 +120,6 @@ export const StoreModal = () => {
                   <Button
                     disabled={isLoading}
                     variant="outline"
-                    // onClick={storeModal.onClose}
                     onClick={() => dispatch(onClose())}
                   >
                     صرف نظر

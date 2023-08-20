@@ -2,17 +2,9 @@ import { redirect } from 'next/navigation'
 
 import { prisma } from '@/lib/prisma'
 import { getAuthSession } from '@/lib/auth'
-import Navbar from '@/components/Navbar'
+import { SettingsForm } from './components/SettingForm'
 
-// import Navbar from '@/components/navbar'
-
-export default async function DashboardLayout({
-  children,
-  params,
-}: {
-  children: React.ReactNode
-  params: { storeId: string }
-}) {
+const SettingsPage = async ({ params }: { params: { storeId: string } }) => {
   const session = await getAuthSession()
   const userId = session?.user.id
 
@@ -26,15 +18,18 @@ export default async function DashboardLayout({
       userId,
     },
   })
-
+  //user can write whatever want, so redirect it back if its not a related store
   if (!store) {
     redirect('/')
   }
 
   return (
-    <>
-      <Navbar />
-      {children}
-    </>
+    <div className="flex-col">
+      <div className="flex-1 space-y-4 p-8 pt-6">
+        <SettingsForm initialData={store} />
+      </div>
+    </div>
   )
 }
+
+export default SettingsPage

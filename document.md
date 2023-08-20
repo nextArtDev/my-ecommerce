@@ -676,3 +676,535 @@ export const deleteImage = (imageName: string): DeleteImageResponse => {
   });
 };
 ```
+
+## Pushing elements at one side in tailwind
+ml-auto: push all elements to the right
+mr-auto: push all elements to the left
+
+## Creating main navbar with active states
+first we define routes with _active_ prop status; i.e. they're active when _pathname === they're route_ , then in mapping over them we use this active prop to indicate them:
+```typescript
+{routes.map((route) => (
+        <Link
+          key={route.href}
+          href={route.href}
+          className={cn(
+            //first classes for all,
+            'text-sm font-medium transition-colors hover:text-primary',
+            // then if route is active, do this!
+            route.active
+            
+              ? 'text-black dark:text-white'
+              : 'text-muted-foreground'
+          )}
+        >
+          {route.label}
+        </Link>
+      ))}
+```
+all code:
+```typescript
+'use client'
+
+export function MainNav({
+  className,
+  ...props
+  // type of className and props should be:React.HTMLAttributes<HTMLElement>
+  //its not needed to pass props as a string and others
+}: React.HTMLAttributes<HTMLElement>) {
+  const pathname = usePathname()
+  const params = useParams()
+// we can use `/${params.storeId}` because we use it inside <Navbar> component which is inside dynamic routes!
+  const routes = [
+    {
+      href: `/${params.storeId}`,
+      label: 'وضعیت',
+      active: pathname === `/${params.storeId}`,
+    },
+    {
+      href: `/${params.storeId}/billboards`,
+      label: 'بیلبوردها',
+      active: pathname === `/${params.storeId}/billboards`,
+    },
+    {
+      href: `/${params.storeId}/categories`,
+      label: 'دسته‌بندی‌ها',
+      active: pathname === `/${params.storeId}/categories`,
+    },
+
+  ]
+
+  return (
+    <nav
+      className={cn('flex items-center gap-4 lg:gap-6', className)}
+      {...props}
+    >
+    //iterating over the routes
+      {routes.map((route) => (
+        <Link
+          key={route.href}
+          href={route.href}
+          className={cn(
+            'text-sm font-medium transition-colors hover:text-primary',
+            route.active
+              ? 'text-black dark:text-white'
+              : 'text-muted-foreground'
+          )}
+        >
+          {route.label}
+        </Link>
+      ))}
+    </nav>
+  )
+}
+```
+
+## Dynamic routes in nested components
+we define <mainNav /> inside components folder, but it inherited params.storeId and we can use them, _because Navbar component inside dynamic routes use it_!
+
+## React Query Zod and react-hook-form of shadcn -- Row
+
+```typescript
+const FaqComment: FC<FaqCommentProps> = ({}) => {
+  const router = useRouter()
+  const pathname = usePathname()
+  const [isMounted, setIsMounted] = useState<boolean>(false)
+  const { loginToast } = useCustomToasts()
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      setIsMounted(true)
+    }
+  }, [])
+
+  const FormSchema = z.object({
+    comment: z
+      .string()
+      .min(3, {
+        message: 'قسمت درج دیدگاه نباید خالی باشد',
+      })
+      .max(280, {
+        message: 'نظر شما نمیتواند بیشتر از 280 کاراکتر باشد.',
+      }),
+  })
+
+  //inferring type of schema
+  // we can destructure it too: const {register, handleSubmit, formState: { errors }}
+  const form = useForm<z.infer<typeof FormSchema>>({
+    //enforcing post validator client side
+    resolver: zodResolver(FormSchema),
+    defaultValues: {
+      comment: '',
+    },
+  })
+
+  const { mutate: createPost,loading } = useMutation({
+    mutationFn: async ({ comment }: z.infer<typeof FormSchema>) => {
+      const payload: z.infer<typeof FormSchema> = { comment }
+      const { data } = await axios.post('/api/faq/post/create', payload)
+      return data
+    },
+    onError: (err) => {
+      if (err instanceof AxiosError) {
+        if (err.response?.status === 401) {
+          return loginToast()
+        }
+      }
+
+      return toast({
+        title: 'مشکلی پیش آمده.',
+        description: 'لطفا بعدا امتحان کنید.',
+        variant: 'destructive',
+      })
+    },
+    onSuccess: () => {
+      router.push(`${pathname}`)
+      return toast({
+        title: '',
+        description: '',
+        variant: 'default',
+      })
+    },
+  })
+  async function onSubmit(data: z.infer<typeof FormSchema>) {
+    const payload: z.infer<typeof FormSchema> = {
+      comment: data.comment,
+    }
+    createPost(payload)
+  }
+
+  if (!isMounted) {
+    return null
+  }
+  return (
+    <article className="flex flex-col items-center justify-center ">
+      <Dialog>
+        <DialogTrigger asChild className="">
+          <Button className=" fixed bg-blue-950 hover:bg-gray-gradient hover:text-blue-950 left-[50%] -translate-x-1/2 bottom-0 w-[50%] max-w-xl p-8 mb-8 shadow-2xl z-50 ">
+            ثبت نظر
+          </Button>
+        </DialogTrigger>
+        <DialogContent className="bg-red-gradient max-w-[95%] rounded-xl">
+          <DialogHeader className="  flex items-center justify-center space-y-4">
+            <DialogTitle className="text-blue-950">ثبت نظر </DialogTitle>
+            <DialogDescription className="text-white/50">
+              نظر یا پیشنهاد خود را بنویسد.
+            </DialogDescription>
+          </DialogHeader>
+
+          <Form {...form}>
+            <form
+              onSubmit={form.handleSubmit(onSubmit)}
+              className="w-full space-y-12 text-center text-black/80 "
+            >
+              <FormField
+                control={form.control}
+                name="comment"
+                render={({ field }) => (
+                  <FormItem className="mx-auto">
+                    <FormControl className="h-36">
+                      <Input
+                      disabled={isLoading}
+                      placeholder="نام فروشگاه"
+                      {...field}
+                    />
+                    </FormControl>
+                    <FormDescription className="text-white/50">
+                      دیدگاه شما در صفحه عمومی نمایش داده خواهد شد.
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <DialogTrigger asChild className="">
+                <Button
+                  type="submit"
+                  className="bg-blue-950 w-full md:w-[50%] text-white "
+                >
+                  ارسال
+                </Button>
+              </DialogTrigger>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
+    </article>
+  )
+}
+
+```
+
+## How fill Edit form by my initial data by zod
+
+firs we get them from dynamic page route
+then set them as an initial data for react-hook-form
+
+```typescript
+//first getting data from dynamic parent
+interface SettingsFormProps {
+  initialData: Store
+}
+
+export const SettingsForm: React.FC<SettingsFormProps> = ({ initialData }) => {
+// then set them as an initial data for react-hook-form
+  const form = useForm<SettingsFormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: initialData,
+  })
+```
+
+## Getting id of product by the using of dynamic routes in api
+
+in any handler function of dynamic api routes, second parameter is params, and we can extract dynamic id from that
+```typescript
+  export async function PATCH(req: Request,{ params }: { params: { storeId: string })
+```
+
+whole code:
+```typescript
+
+export async function PATCH(
+  // the first parameter is request
+  req: Request,
+  // second parameter of any function of dynamic api route is params
+  { params }: { params: { storeId: string } }
+) {
+  try {
+    const session = await getAuthSession()
+    const userId = session?.user.id
+    const body = await req.json()
+
+    const { name } = body
+
+
+```
+----------------------
+
+## Full Update api route 
+
+```typescript
+const formSchema = z.object({
+  name: z.string().min(2),
+})
+
+export async function PATCH(
+  req: Request,
+  { params }: { params: { storeId: string } }
+) {
+  try {
+    const session = await getAuthSession()
+    const userId = session?.user.id
+    const body = await req.json()
+
+    const { name } = formSchema.parse(body)
+
+    if (!userId) {
+      return new NextResponse('Unauthenticated', { status: 403 })
+    }
+
+    if (!params.storeId) {
+      return new NextResponse('Store id is required', { status: 400 })
+    }
+
+    const store = await prisma.store.updateMany({
+      where: {
+        id: params.storeId,
+        userId,
+      },
+      data: {
+        name,
+      },
+    })
+
+    return NextResponse.json(store)
+  } catch (error) {
+    console.log('[STORE_PATCH]', error)
+    return new NextResponse('Internal error', { status: 500 })
+  }
+}
+```
+
+-------
+
+## Full Delete api route
+
+```typescript
+
+export async function DELETE(
+  req: Request,
+  { params }: { params: { storeId: string } }
+) {
+  try {
+    const session = await getAuthSession()
+    const userId = session?.user.id
+
+    if (!userId) {
+      return new NextResponse('Unauthenticated', { status: 403 })
+    }
+
+    if (!params.storeId) {
+      return new NextResponse('Store id is required', { status: 400 })
+    }
+
+    const store = await prisma.store.deleteMany({
+      where: {
+        id: params.storeId,
+        userId,
+      },
+    })
+
+    return NextResponse.json(store)
+  } catch (error) {
+    console.log('[STORE_DELETE]', error)
+    return new NextResponse('Internal error', { status: 500 })
+  }
+}
+
+```
+
+## Creating a modal to fire when we want to delete store
+in modal folder we create _alert/modal.tsx_
+Each modal should have 4 states, open, close, loading and confirm.
+we should set hydration error
+
+```typescript
+'use client'
+
+import { useEffect, useState } from 'react'
+
+import { Button } from '@/components/ui/button'
+import { Modal } from '../modal'
+
+interface AlertModalProps {
+  isOpen: boolean
+  onClose: () => void
+  onConfirm: () => void
+  loading: boolean
+}
+
+export const AlertModal: React.FC<AlertModalProps> = ({
+  isOpen,
+  onClose,
+  onConfirm,
+  loading,
+}) => {
+  const [isMounted, setIsMounted] = useState(false)
+
+  useEffect(() => {
+    setIsMounted(true)
+  }, [])
+
+  if (!isMounted) {
+    return null
+  }
+
+  return (
+    <Modal
+      title="آیا مطمئن هستید؟"
+      description="این عملیات برگشت پذیر نیست!"
+      isOpen={isOpen}
+      onClose={onClose}
+    >
+      <div className="pt-6 gap-4 space-x-8 flex items-center justify-start w-full">
+        <Button disabled={loading} variant="destructive" onClick={onConfirm}>
+          ادامه
+        </Button>
+        <Button disabled={loading} variant="outline" onClick={onClose}>
+          انصراف
+        </Button>
+      </div>
+    </Modal>
+  )
+}
+```
+
+## Creating environment key
+
+it would be very useful in front-end
+we set sth to all the routes, public and private;
+
+```typescript
+
+//variant could be public or private
+interface ApiAlertProps {
+  title: string
+  description: string
+  variant: 'public' | 'admin'
+}
+
+const textMap: Record<ApiAlertProps['variant'], string> = {
+  public: 'Public',
+  admin: 'Admin',
+}
+
+const variantMap: Record<ApiAlertProps['variant'], BadgeProps['variant']> = {
+  public: 'secondary',
+  admin: 'destructive',
+}
+
+export const ApiAlert: React.FC<ApiAlertProps> = ({
+  title,
+  description,
+  variant = 'public',
+}) => {
+  //How to copy code
+  const onCopy = (description: string) => {
+    navigator.clipboard.writeText(description)
+    // toast.success('API Route copied to clipboard.');
+    toast({
+      title: 'API کپی شد',
+      description: '',
+      variant: 'default',
+    })
+  }
+
+  return (
+    <Alert dir="ltr">
+      <Server className="h-4 w-4" />
+      <AlertTitle className="flex items-center gap-x-2">
+        {title}
+        <Badge variant={variantMap[variant]}>{textMap[variant]}</Badge>
+      </AlertTitle>
+      <AlertDescription className="mt-4 flex items-center justify-between">
+      // How to write code, semantic code 
+        <code className="relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold">
+          {description}
+        </code>
+        <Button variant="outline" size="sm" onClick={() => onCopy(description)}>
+          <Copy className="h-4 w-4" />
+        </Button>
+      </AlertDescription>
+    </Alert>
+  )
+}
+
+```
+
+### Record type definition by chatGPT
+
+```js
+Let's say we have the following type definitions:
+
+
+type ApiAlertProps = {
+  variant: 'public' | 'admin';
+  message: string;
+}
+
+type BadgeProps = {
+  variant: 'subtle' | 'solid';
+  text: string;
+}
+
+
+ApiAlertProps['variant'] and BadgeProps['variant'] are both string literal types that can only be one of the specified values ('public', 'admin', 'subtle', or 'solid'). 
+
+In the context of Record<ApiAlertProps['variant'], BadgeProps['variant']>, this means we are creating a new type that maps the values of ApiAlertProps['variant'] to the values of BadgeProps['variant']. 
+
+For example, if we have an object with the key 'public' and value 'subtle', it would match the type Record<'public', 'subtle'>. Similarly, an object with the key 'admin' and value 'solid' would match the type Record<'admin', 'solid'>. 
+
+Here's an example of how we could use this type:
+
+
+const variantMap: Record<ApiAlertProps['variant'], BadgeProps['variant']> = {
+  'public': 'subtle',
+  'admin': 'solid'
+};
+
+function renderAlert(alertProps: ApiAlertProps) {
+  const badgeVariant = variantMap[alertProps.variant];
+  return (
+    <Badge variant={badgeVariant} text={alertProps.message} />
+  );
+}
+
+
+In this example, we're using variantMap to map the ApiAlertProps['variant'] value to a corresponding BadgeProps['variant'] value. We then pass this mapped value to the Badge component along with the alert message.
+```
+
+## Safely mechanism to access origin in nextjs
+
+on the server the window object does not exist, 
+
+```typescript
+import { useEffect, useState } from "react";
+
+export const useOrigin = () => {
+  const [mounted, setMounted] = useState(false);
+
+  //if window is not undefined and we have window.location.origin, return window.location.origin else return nothing
+  const origin = typeof window !== 'undefined' && window.location.origin ? window.location.origin : '';
+
+//hydration
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  if (!mounted) {
+    return ''
+  }
+
+  return origin;
+};
+
+```
