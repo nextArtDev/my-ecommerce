@@ -1208,3 +1208,11 @@ export const useOrigin = () => {
 };
 
 ```
+
+## Persian date picker and formatter
+
+npm i persian-datepicker
+<https://www.npmjs.com/package/persian-datepicker>
+
+npm i persian-date
+<https://www.npmjs.com/package/persian-date>
