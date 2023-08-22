@@ -499,8 +499,19 @@ import { getAuthSession } from '@/lib/auth'
 window.location.assign(`/${data.id}`)
 ```
 ## Upload Image
+S3 : <https://www.npmjs.com/package/next-s3-upload>
+<https://aws.amazon.com/blogs/mobile/add-storage-to-a-next-js-13-app-with-aws-amplify/>
 
 <https://stackoverflow.com/questions/72663673/how-do-i-get-uploaded-image-in-next-js-and-save-it>
+
+<https://selectfrom.dev/connecting-aws-s3-buckets-to-next-js-25e903621c70>
+
+<https://upmostly.com/next-js/how-to-upload-a-file-to-s3-with-next-js>
+
+
+**
+<https://www.adamrichardson.dev/blog/next-js-image-upload-s3>
+
 
 ```typescript
 import nextConnect from "next-connect";
@@ -560,6 +571,7 @@ export const config = {
 ### another
 <https://codesandbox.io/s/nextjs-simple-upload-file-to-server-thyb0?file=/pages/api/file.js>
 
+<https://upmostly.com/next-js/how-to-upload-a-file-to-s3-with-next-js>
 ### ChatGPT
 
 npm i formidable
@@ -1216,3 +1228,4 @@ npm i persian-datepicker
 
 npm i persian-date
 <https://www.npmjs.com/package/persian-date>
+
