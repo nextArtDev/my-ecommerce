@@ -32,65 +32,51 @@ const s3 = new S3({
   region: process.env.REGION,
   signatureVersion: 'v4',
 })
-
 export async function GET(request: NextRequest, response: NextResponse) {
-  try {
-    // const ex = (request.query.fileType as string).split('/')[1]
-
-    const rawParams = request.url.split('?')[1]
-    const ex = rawParams.split('%2F')[1]
-    const Key = `${randomUUID()}.${ex}`
-    // const Key = `${randomUUID()}`
-
-    const s3Params = {
-      Bucket: process.env.LIARA_BUCKET_NAME,
-      Key,
-      Expires: 60,
-      ContentType: `image/${ex}`,
-    }
-
-    const uploadUrl = await s3.getSignedUrl('putObject', s3Params)
-
-    // we should use this url to make a post request
-    console.log('uploadUrl', uploadUrl)
-
-    return NextResponse.json({ success: true, uploadUrl, key: Key })
-  } catch (error) {
-    console.error('Error uploading image:', error)
-    NextResponse.json({ message: 'Error uploading image' })
+  const imageName = 'randome'
+  const params = {
+    Bucket: process.env.LIARA_BUCKET_NAME,
+    Key: `${randomUUID()}`,
+    //Post s3 to bucket before expire
+    Expires: 60,
   }
+
+  //   const uploadUrl = await s3.getSignedUrlPromise('getObject', params)
+  const uploadUrl = await s3.getSignedUrlPromise('getObject', params)
+
+  return NextResponse.json({ success: true, uploadUrl })
+
+  //using that: app.get('s3', async (req , res)=>{ const url = s3.generateUploadURL(); res.send({url}) })
 }
-export async function PUT(request: NextRequest, response: NextResponse) {
-  try {
-    // const ex = (request.query.fileType as string).split('/')[1]
 
-    // const rawParams = request.url.split('?')[1]
-    // const ex = rawParams.split('%2F')[1]
-    // console.log(ex)
-    // const Key = `${randomUUID()}.${ex}`
-    // const Key = `${randomUUID()}`
-    const { file } = await request.json()
-    console.log('file', file)
-    const key = file.key
-    const s3Params = {
-      Bucket: process.env.LIARA_BUCKET_NAME,
+// export async function GET(request: NextRequest, response: NextResponse) {
+//   try {
+//     // const ex = (request.query.fileType as string).split('/')[1]
 
-      Key: key,
-      Expires: 60,
-      // ContentType: `image/${ex}`,
-    }
+//     const rawParams = request.url.split('?')[1]
+//     const ex = rawParams.split('%2F')[1]
+//     console.log(ex)
+//     const Key = `${randomUUID()}.${ex}`
+//     // const Key = `${randomUUID()}`
 
-    const uploadUrl = await s3.getSignedUrl('getObject', s3Params)
+//     const s3Params = {
+//       Bucket: process.env.LIARA_BUCKET_NAME,
+//       Key,
+//       Expires: 60,
+//       ContentType: `image/${ex}`,
+//     }
 
-    // we should use this url to make a post request
-    console.log('uploadUrl', uploadUrl)
+//     const uploadUrl = await s3.getSignedUrl('putObject', s3Params)
 
-    return NextResponse.json({ success: true, uploadUrl })
-  } catch (error) {
-    console.error('Error uploading image:', error)
-    NextResponse.json({ message: 'Error uploading image' })
-  }
-}
+//     // we should use this url to make a post request
+//     console.log('uploadUrl', uploadUrl)
+
+//     return NextResponse.json({ success: true, uploadUrl, key: Key })
+//   } catch (error) {
+//     console.error('Error uploading image:', error)
+//     NextResponse.json({ message: 'Error uploading image' })
+//   }
+// }
 // import { NextRequest, NextResponse } from 'next/server'
 // import { v4 as uuid } from 'uuid'
 // import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3'

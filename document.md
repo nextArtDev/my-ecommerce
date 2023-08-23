@@ -513,6 +513,68 @@ S3 : <https://www.npmjs.com/package/next-s3-upload>
 <https://www.adamrichardson.dev/blog/next-js-image-upload-s3>
 
 
+<https://www.mtechzilla.com/blogs/how-to-upload-images-and-videos-to-amazon-s3-with-next-js-and-aws-sdk-v3>
+
+<https://stackoverflow.com/questions/76379368/how-can-i-upload-images-to-an-amazon-s3-bucket-using-next-js-13s-app-router-and>
+
+<https://javascript.plainenglish.io/how-to-upload-a-file-to-aws-s3-using-next-js-b89482da7c64>
+
+<https://awstip.com/face-detection-and-comparison-using-aws-and-next-js-42baf8e14bca>
+
+<https://reacthustle.com/blog/how-to-create-react-multiple-file-upload-using-nextjs-and-typescript>
+
+```typescript
+
+//inside utils, next<12 multer
+import aws from 'aws-sdk';
+import multer from 'multer';
+import multerS3 from 'multer-s3';
+import crypto from 'crypto';
+
+aws.config.update({
+  secretAccessKey: process.env.AWS_SECRET_KEY,
+  accessKeyId: process.env.AWS_ACCESS_KEY,
+  region: process.env.AWS_REGION,
+});
+
+const s3 = new aws.S3({});
+
+const upload = multer({
+  storage: multerS3({
+    s3,
+    bucket: process.env.AWS_BUCKET,
+    acl: 'public-read',
+    contentType: multerS3.AUTO_CONTENT_TYPE,
+    metadata(req, file, cb) {
+      cb(null, { fieldName: file.fieldname });
+    },
+    key: (req, file, cb) => {
+      crypto.randomBytes(16, (err, hash) => {
+        if (err) cb(err);
+
+        const fileName = `${hash.toString('hex')}-${file.originalname}`;
+
+        cb(null, fileName);
+      });
+    },
+  }),
+});
+
+export default upload;
+
+
+//How to use it
+
+import upload from 'src/utils/upload';
+
+
+
+handler.use(upload.single('file'));
+...
+
+
+```
+-------------------------------------------------------
 ```typescript
 import nextConnect from "next-connect";
 import multer from "multer";
@@ -561,7 +623,7 @@ export const config = {
     },
 };
 ```
-
+<https://reactjsexample.com/creating-a-multer-storage-engine-with-a-nextjs-placeholder/>
 ### Ethan upload
 <https://ethanmick.com/how-to-upload-a-file-in-next-js-13-app-directory/>
 
