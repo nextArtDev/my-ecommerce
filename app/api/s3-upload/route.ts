@@ -60,14 +60,14 @@ export async function GET(request: NextRequest, response: NextResponse) {
     NextResponse.json({ message: 'Error uploading image' })
   }
 }
-export async function PUT(request: NextRequest, response: NextResponse) {
+export async function POST(request: NextRequest, response: NextResponse) {
   try {
     // const ex = (request.query.fileType as string).split('/')[1]
 
-    // const rawParams = request.url.split('?')[1]
-    // const ex = rawParams.split('%2F')[1]
+    const rawParams = request.url.split('?')[1]
+    const ex = rawParams.split('%2F')[1]
     // console.log(ex)
-    // const Key = `${randomUUID()}.${ex}`
+    const Key = `${randomUUID()}.${ex}`
     // const Key = `${randomUUID()}`
     const { file } = await request.json()
     console.log('file', file)
