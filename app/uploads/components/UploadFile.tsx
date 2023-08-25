@@ -40,7 +40,7 @@ export default function UploadFile() {
   return (
     <div {...getRootProps()} className="flex justify-center items-center">
       <div
-        className="w-2/3 h-40 border rounded-md cursor-pointer "
+        className="w-2/3 h-40 gap-6 border-[3px] border-dashed border-gray-500 bg-gray-200 rounded-md cursor-pointer "
         placeholder="فایل را اینجا رها کنید یا با کلیک انتخاب کنید."
       >
         <input {...getInputProps()} />
