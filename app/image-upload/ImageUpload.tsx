@@ -1,4 +1,6 @@
 'use client'
+
+import { uploadToS3 } from '@/lib/uploadToS3'
 import axios from 'axios'
 import Image from 'next/image'
 import { ChangeEvent, useState } from 'react'
@@ -88,53 +90,38 @@ import { ChangeEvent, useState } from 'react'
 // export default Home
 
 //Handling Upload to S3
-async function uploadToS3(e: ChangeEvent<HTMLFormElement>) {
-  const formData = new FormData(e.target)
-
-  //getting data by the name of that in the form
-  const file = formData.get('file')
-
-  if (!file) {
-    return null
-  }
-
-  // @ts-ignore
-  const fileType = encodeURIComponent(file.type)
-  //we want filetype to attach our extension to our content type, because for put request we need to map signature to assigned url
-
-  //Getting a presigned url
-  const { data } = await axios.get(`/api/s3-upload?fileType=${fileType}`)
-
-  const { uploadUrl, key } = data
-
-  //we make a put request by a upload url
-  const res = await axios.put(uploadUrl, file)
-  console.log(key)
-
-  return data
-}
 
 function ImageUpload() {
-  const [src, setSrc] = useState<string[]>([])
+  const [src, setSrc] = useState<string>('')
   async function handleSubmit(e: ChangeEvent<HTMLFormElement>) {
     e.preventDefault()
 
-    const data = await uploadToS3(e)
-    const newUrl = data.uploadUrl.split('?')[0]
-    console.log(newUrl)
-    setSrc((prev) => [...prev, newUrl])
+    const source = await uploadToS3(e)
+    // console.log(key)
+    // const newUrl = data.uploadUrl.split('?')[0]
+    // console.log(newUrl)
+    // setSrc((prev) => [...prev, newUrl])
+    // const newUrl = await axios.post(`/api/s3-get`, JSON.stringify(key))
+    // console.log(newUrl)
+
+    // const sr = newUrl?.data.uploadUrl?.split('?')[0]
+    // const sr = `https://mye-commerce.storage.iran.liara.space/${key}`
+    setSrc(source!)
   }
+
+  // `https://${bucketName}.s3.amazonaws.com/${newFilename}`
 
   return (
     <>
       <p>Please select file to upload</p>
       <form onSubmit={handleSubmit}>
-        <input type="file" accept="image/jpeg image/png" name="file" />
+        <input type="file" accept="image" name="file" />
         <button type="submit">Upload</button>
+        <input type="text" />
       </form>
-      {src?.map((sr, i) => (
-        <Image key={i} src={sr} width={150} height={150} alt="image" />
-      ))}
+      {/* {src?.map((sr, i) => ( */}
+      <Image src={src} width={350} height={350} alt="image" />
+      {/* ))} */}
     </>
   )
 }
