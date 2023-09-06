@@ -27,13 +27,11 @@ import { useCustomToasts } from '@/hooks/use-custom-toasts'
 import { AlertModal } from '@/components/modals/alert-modal'
 import { ApiAlert } from '@/components/api-alert'
 import { useOrigin } from '@/hooks/use-origin'
-// import { Heading } from '@/components/ui/heading'
 // import { AlertModal } from '@/components/modals/alert-modal'
 // import { ApiAlert } from '@/components/ui/api-alert'
-// import { useOrigin } from '@/hooks/use-origin'
 
 const formSchema = z.object({
-  name: z.string().min(2),
+  name: z.string().min(2, { message: 'حداقل 2 کاراکتر برای نام الزامیست' }),
 })
 
 //just name type of form schema to not repeat it constantly
@@ -103,6 +101,8 @@ export const SettingsForm: React.FC<SettingsFormProps> = ({ initialData }) => {
     }
     saveSettings(payload)
   }
+
+  //onDelete React Query
   const { mutate: onDelete, isLoading: deleteLoading } = useMutation({
     mutationFn: async () => {
       const { data } = await axios.delete(`/api/stores/${params.storeId}`)
@@ -163,7 +163,9 @@ export const SettingsForm: React.FC<SettingsFormProps> = ({ initialData }) => {
           <Trash className="" />
         </Button>
       </div>
+
       <Separator />
+
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}

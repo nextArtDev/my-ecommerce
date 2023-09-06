@@ -44,6 +44,7 @@ export default function StoreSwitcher({
   const params = useParams()
   const router = useRouter()
 
+  //To easily define them for Combobox
   const formattedItems = items.map((item) => ({
     label: item.name,
     value: item.id,
@@ -69,7 +70,7 @@ export default function StoreSwitcher({
           size="sm"
           role="combobox"
           aria-expanded={open}
-          aria-label="Select a store"
+          aria-label="یک فروشگاه را انتخاب کنید"
           className={cn('w-[200px] justify-between', className)}
         >
           <LuStore className="ml-2 h-4 w-4" />
@@ -87,7 +88,7 @@ export default function StoreSwitcher({
                 <CommandItem
                   key={store.value}
                   onSelect={() => onStoreSelect(store)}
-                  className="text-sm"
+                  className="text-sm md:text-xs"
                 >
                   <LuStore className="ml-2 h-4 w-4" />
                   {store.label}

@@ -6,6 +6,7 @@ const BillboardPage = async ({
 }: {
   params: { billboardId: string }
 }) => {
+  //if any 'billboardId' we'll gonna use that as initial data, if not just we route here to create a new billboard
   const billboard = await prisma.billboard.findUnique({
     where: {
       id: params.billboardId,

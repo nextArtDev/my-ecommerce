@@ -8,6 +8,7 @@ const formSchema = z.object({
 })
 
 export async function PATCH(
+  //parameters are only available in the second parameter of the API route.
   req: Request,
   { params }: { params: { storeId: string } }
 ) {

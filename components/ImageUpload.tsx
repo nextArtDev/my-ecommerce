@@ -1,17 +1,19 @@
 'use client'
 
 // import { CldUploadWidget } from 'next-cloudinary'
-import { useEffect, useState } from 'react'
+import { ChangeEvent, useEffect, useState } from 'react'
 
 import { Button } from '@/components/ui/button'
 import Image from 'next/image'
 import { ImagePlus, Trash } from 'lucide-react'
+import { uploadToS3 } from '@/lib/uploadToS3'
+import { deleteFromS3 } from '@/lib/deleteFromS3'
 
 interface ImageUploadProps {
   disabled?: boolean
   onChange: (value: string) => void
   onRemove: (value: string) => void
-  value: string[]
+  value: string[] //Number of images or if 'const files = Array.from(event.target.files!)' --> files
 }
 
 const ImageUpload: React.FC<ImageUploadProps> = ({
@@ -26,10 +28,34 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
     setIsMounted(true)
   }, [])
 
-  const onUpload = (result: any) => {
-    onChange(result.info.secure_url)
+  // const onUpload = (result: any) => {
+  //   onChange(result.info.secure_url)
+  // }
+  const [urls, setUrls] = useState<string[]>([])
+
+  const handleFilesChange = async (event: ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(event.target.files!)
+    if (files.length < 1) return
+    console.log(files.length)
+
+    for (let index = 0; index < files.length; index++) {
+      const value = files[index]
+      console.log(value)
+      //@ts-ignore
+      const url = await uploadToS3(value)
+      onChange(url!)
+
+      setUrls((current: any) => [...current, url])
+    }
   }
 
+  const onDelete = async (url: string) => {
+    const res = await deleteFromS3(url)
+    onRemove(res?.data.uploadUrl)
+    console.log(res?.data.uploadUrl)
+  }
+
+  //its place is important and it should be after onUpload to does not break it
   if (!isMounted) {
     return null
   }
@@ -37,7 +63,8 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
   return (
     <div>
       <div className="mb-4 flex items-center gap-4">
-        {value.map((url) => (
+        {/* Iterating over Url of different image */}
+        {urls.map((url) => (
           <div
             key={url}
             className="relative w-[200px] h-[200px] rounded-md overflow-hidden"
@@ -45,7 +72,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
             <div className="z-10 absolute top-2 right-2">
               <Button
                 type="button"
-                onClick={() => onRemove(url)}
+                onClick={() => onDelete(url)}
                 variant="destructive"
                 size="sm"
               >
@@ -56,25 +83,22 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
           </div>
         ))}
       </div>
-      {/* <CldUploadWidget onUpload={onUpload} uploadPreset="t4drjppf">
-        {({ open }) => {
-          const onClick = () => {
-            open()
-          }
-
-          return ( */}
       <Button
         type="button"
         disabled={disabled}
         variant="secondary"
         //   onClick={onClick}
       >
+        <input
+          // hidden
+          type="file"
+          name="file"
+          multiple={true}
+          onChange={handleFilesChange}
+        />
         <ImagePlus className="h-4 w-4 mr-2" />
-        Upload an Image
+        {/* Upload an Image */}
       </Button>
-      {/* )
-        }}
-      </CldUploadWidget> */}
     </div>
   )
 }

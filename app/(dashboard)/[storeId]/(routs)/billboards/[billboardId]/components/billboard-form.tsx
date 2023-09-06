@@ -30,13 +30,14 @@ import ImageUpload from '@/components/ImageUpload'
 
 const formSchema = z.object({
   label: z.string().min(1),
-  imageUrl: z.string().min(1),
+  imageUrl: z.string().min(1, { message: 'قسمت عکس نمی‌تواند خالی باشد' }),
 })
 
 type BillboardFormValues = z.infer<typeof formSchema>
 
 //if there is any billboard its Billboard, else its null
 interface BillboardFormProps {
+  //there is a chance to have no initial data and in fact we're creating one.
   initialData: Billboard | null
 }
 
@@ -49,6 +50,7 @@ export const BillboardForm: React.FC<BillboardFormProps> = ({
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
 
+  //Based on we get "new" or no billboard data, or we get billboardId as params we create or update billboard
   const title = initialData ? 'ویرایش بیلبورد' : 'ایجاد بیلبورد'
   const description = initialData
     ? 'ویرایش بیلبورد.'
@@ -58,6 +60,7 @@ export const BillboardForm: React.FC<BillboardFormProps> = ({
 
   const form = useForm<BillboardFormValues>({
     resolver: zodResolver(formSchema),
+    //the second part is for 'null' cases
     defaultValues: initialData || {
       label: '',
       imageUrl: '',
@@ -116,6 +119,7 @@ export const BillboardForm: React.FC<BillboardFormProps> = ({
       />
       <div className="flex items-center justify-between">
         <Heading title={title} description={description} />
+        {/* in case there is initial data it means we want to edit it */}
         {initialData && (
           <Button
             disabled={loading}

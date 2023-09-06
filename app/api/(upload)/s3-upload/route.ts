@@ -65,8 +65,9 @@ export async function POST(request: NextRequest, response: NextResponse) {
     // const ex = (request.query.fileType as string).split('/')[1]
 
     const rawParams = request.url.split('?')[1]
+
+    // console.log(rawParams)
     const ex = rawParams.split('%2F')[1]
-    // console.log(ex)
     const Key = `${randomUUID()}.${ex}`
     // const Key = `${randomUUID()}`
     const { file } = await request.json()
@@ -81,6 +82,31 @@ export async function POST(request: NextRequest, response: NextResponse) {
     }
 
     const uploadUrl = await s3.getSignedUrl('getObject', s3Params)
+
+    // we should use this url to make a post request
+    console.log('uploadUrl', uploadUrl)
+
+    return NextResponse.json({ success: true, uploadUrl })
+  } catch (error) {
+    console.error('Error uploading image:', error)
+    NextResponse.json({ message: 'Error uploading image' })
+  }
+}
+
+export async function DELETE(request: NextRequest, response: NextResponse) {
+  try {
+    const rawParams = request.url.split('?')[1]
+    const KeyUrl = rawParams.split('key=')[1]
+    const Key = KeyUrl.split('.')[0]
+
+    console.log(Key)
+    const s3Params = {
+      Bucket: process.env.LIARA_BUCKET_NAME!,
+      Key,
+    }
+
+    // const uploadUrl = await s3.getSignedUrl('deleteObject', s3Params)
+    const uploadUrl = await s3.deleteObject(s3Params)
 
     // we should use this url to make a post request
     console.log('uploadUrl', uploadUrl)
@@ -149,3 +175,16 @@ export async function POST(request: NextRequest, response: NextResponse) {
 //     NextResponse.json({ message: 'Error uploading image' })
 //   }
 // }
+
+// import { APIRoute } from 'next-s3-upload'
+
+// export default APIRoute.configure({
+
+//   forcePathStyle: true,
+//   apiVersion: '2006-03-01',
+//   endpoint: process.env.LIARA_ENDPOINT,
+//   accessKeyId: process.env.LIARA_ACCESS_KEY,
+//   secretAccessKey: process.env.LIARA_SECRET_KEY,
+//   region: process.env.REGION,
+//   signatureVersion: 'v4',
+// })

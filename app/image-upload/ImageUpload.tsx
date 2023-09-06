@@ -95,8 +95,16 @@ function ImageUpload() {
   const [src, setSrc] = useState<string>('')
   async function handleSubmit(e: ChangeEvent<HTMLFormElement>) {
     e.preventDefault()
+    // const fileInput = e.target.file
 
+    // // Get the number of uploaded files
+    // const numberOfFiles = fileInput.files.length
+
+    // console.log(`Number of uploaded files: ${numberOfFiles}`)
+    // for (let i = 0; i < numberOfFiles; i++) {
+    // }
     const source = await uploadToS3(e)
+    setSrc(source!)
     // console.log(key)
     // const newUrl = data.uploadUrl.split('?')[0]
     // console.log(newUrl)
@@ -106,16 +114,16 @@ function ImageUpload() {
 
     // const sr = newUrl?.data.uploadUrl?.split('?')[0]
     // const sr = `https://mye-commerce.storage.iran.liara.space/${key}`
-    setSrc(source!)
   }
 
   // `https://${bucketName}.s3.amazonaws.com/${newFilename}`
+  //mye-commerce.storage.iran.liara.space/8241450b-9a97-42ec-8a71-190a8ecb490c.png
 
-  return (
+  https: return (
     <>
       <p>Please select file to upload</p>
       <form onSubmit={handleSubmit}>
-        <input type="file" accept="image" name="file" />
+        <input type="file" accept="image" name="file" multiple />
         <button type="submit">Upload</button>
         <input type="text" />
       </form>

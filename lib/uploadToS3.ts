@@ -1,11 +1,12 @@
 import axios from 'axios'
 import { ChangeEvent } from 'react'
 
-export async function uploadToS3(e: ChangeEvent<HTMLFormElement>) {
-  const formData = new FormData(e.target)
+// export async function uploadToS3(e: ChangeEvent<HTMLFormElement>) {
+export async function uploadToS3(file: ChangeEvent<HTMLInputElement>) {
+  // const formData = new FormData(e.target)
 
-  //getting data by the name of that in the form
-  const file = formData.get('file')
+  // //getting data by the name of that in the form
+  // const file = formData.get('file')
 
   if (!file) {
     return null

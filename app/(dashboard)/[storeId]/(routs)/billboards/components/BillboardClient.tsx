@@ -28,6 +28,7 @@ export const BillboardClient: React.FC<BillboardClientProps> = ({ data }) => {
           description="بیلبوردهای فروشگاه خود را مدیریت کنید."
         />
         <Button
+          //we use "new" here to create it, and any other id of billboards to update or delete an existing one
           onClick={() => router.push(`/${params.storeId}/billboards/new`)}
         >
           اضافه کردن <Plus className="mr-2 h-4 w-4" />
