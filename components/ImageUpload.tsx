@@ -44,6 +44,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
       //@ts-ignore
       const url = await uploadToS3(value)
       onChange(url!)
+      console.log(url)
 
       setUrls((current: any) => [...current, url])
     }
@@ -51,8 +52,8 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
 
   const onDelete = async (url: string) => {
     const res = await deleteFromS3(url)
-    onRemove(res?.data.uploadUrl)
-    console.log(res?.data.uploadUrl)
+    onRemove(url)
+    console.log(res)
   }
 
   //its place is important and it should be after onUpload to does not break it
@@ -87,7 +88,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
         type="button"
         disabled={disabled}
         variant="secondary"
-        //   onClick={onClick}
+        onClick={() => (value = urls)}
       >
         <input
           // hidden

@@ -68,7 +68,7 @@ export async function POST(request: NextRequest, response: NextResponse) {
 
     // console.log(rawParams)
     const ex = rawParams.split('%2F')[1]
-    const Key = `${randomUUID()}.${ex}`
+    // const Key = `${randomUUID()}.${ex}`
     // const Key = `${randomUUID()}`
     const { file } = await request.json()
     console.log('file', file)
@@ -77,7 +77,7 @@ export async function POST(request: NextRequest, response: NextResponse) {
       Bucket: process.env.LIARA_BUCKET_NAME,
 
       Key: key,
-      Expires: 60,
+      // Expires: 60,
       // ContentType: `image/${ex}`,
     }
 
@@ -96,22 +96,22 @@ export async function POST(request: NextRequest, response: NextResponse) {
 export async function DELETE(request: NextRequest, response: NextResponse) {
   try {
     const rawParams = request.url.split('?')[1]
-    const KeyUrl = rawParams.split('key=')[1]
-    const Key = KeyUrl.split('.')[0]
+    const Key = rawParams.split('key=')[1]
+    // const Key = KeyUrl.split('.')[0]
 
     console.log(Key)
     const s3Params = {
       Bucket: process.env.LIARA_BUCKET_NAME!,
-      Key,
+      Key: '4dbdc45c-69db-45b0-8e3a-0ba8bf9f25bc.png',
     }
 
-    // const uploadUrl = await s3.getSignedUrl('deleteObject', s3Params)
-    const uploadUrl = await s3.deleteObject(s3Params)
+    await s3.deleteObject(s3Params)
+    // const uploadUrl = await s3.deleteObject(s3Params)
 
     // we should use this url to make a post request
-    console.log('uploadUrl', uploadUrl)
+    // console.log('uploadUrl', uploadUrl)
 
-    return NextResponse.json({ success: true, uploadUrl })
+    return NextResponse.json({ success: true })
   } catch (error) {
     console.error('Error uploading image:', error)
     NextResponse.json({ message: 'Error uploading image' })

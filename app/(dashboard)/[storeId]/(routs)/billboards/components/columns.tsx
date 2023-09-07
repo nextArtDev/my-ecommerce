@@ -1,26 +1,26 @@
-"use client"
+'use client'
 
-import { ColumnDef } from "@tanstack/react-table"
-
-import { CellAction } from "./cell-action"
+import { ColumnDef } from '@tanstack/react-table'
+import { CellAction } from './CellAction'
 
 export type BillboardColumn = {
   id: string
-  label: string;
-  createdAt: string;
+  label: string
+  createdAt: string
 }
 
 export const columns: ColumnDef<BillboardColumn>[] = [
   {
-    accessorKey: "label",
-    header: "Label",
+    accessorKey: 'label',
+    header: 'عنوان',
   },
   {
-    accessorKey: "createdAt",
-    header: "Date",
+    accessorKey: 'createdAt',
+    header: 'تاریخ',
   },
   {
-    id: "actions",
-    cell: ({ row }) => <CellAction data={row.original} />
+    id: 'actions',
+    //This is tanstack react table, this is how we can access the original object that this cell is working with (which here is: id: string; label: string;  createdAt: string)
+    cell: ({ row }) => <CellAction data={row.original} />,
   },
-];
+]
