@@ -5,12 +5,12 @@ import { useParams, useRouter } from 'next/navigation'
 
 import { Button } from '@/components/ui/button'
 
-// import { ApiList } from "@/components/ui/api-list";
 import { Separator } from '@/components/ui/separator'
 
 import { columns, BillboardColumn } from './columns'
 import { Heading } from '@/components/Heading'
 import { DataTable } from '@/components/DataTable'
+import { ApiList } from '@/components/ApiList'
 
 interface BillboardClientProps {
   data: BillboardColumn[]
@@ -38,7 +38,7 @@ export const BillboardClient: React.FC<BillboardClientProps> = ({ data }) => {
       <DataTable searchKey="label" columns={columns} data={data} />
       <Heading title="API" description="فراخوانی API برای بیلبورد." />
       <Separator />
-      {/* <ApiList entityName="billboards" entityIdName="billboardId" /> */}
+      <ApiList entityName="billboards" entityIdName="billboardId" />
     </>
   )
 }

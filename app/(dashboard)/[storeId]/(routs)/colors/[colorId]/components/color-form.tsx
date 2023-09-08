@@ -7,7 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
 
 import { Trash } from 'lucide-react'
-import { Billboard } from '@prisma/client'
+import { Color } from '@prisma/client'
 import { useParams, useRouter } from 'next/navigation'
 
 import { Input } from '@/components/ui/input'
@@ -23,63 +23,58 @@ import {
 import { Separator } from '@/components/ui/separator'
 
 import { AlertModal } from '@/components/modals/alert-modal'
-// import ImageUpload from "@/components/ui/image-upload"
 import { toast } from '@/components/ui/use-toast'
 import { Heading } from '@/components/Heading'
-import ImageUpload from '@/components/ImageUpload'
 
 const formSchema = z.object({
-  label: z.string().min(1, { message: 'عنوان نمی‌تواند خالی باشد.' }),
-  imageUrl: z.string().min(1, { message: 'قسمت عکس نمی‌تواند خالی باشد' }),
+  name: z.string().min(2, { message: 'نام باید بیش از دو کاراکتر باشد.' }),
+  value: z
+    .string()
+    .min(4, { message: 'مقدار هگز رنگ نمیتواند کمتر از 4 کاراکتر باشد' })
+    .max(9, { message: 'مقدار هگز رنگ نمیتواند بیش از 9 کاراکتر باشد' })
+    .regex(/^#/, {
+      message: 'عبارت باید یک مقدار هگز معتبر با علامت # باشد.',
+    }),
 })
 
-type BillboardFormValues = z.infer<typeof formSchema>
+type ColorFormValues = z.infer<typeof formSchema>
 
-//if there is any billboard its Billboard, else its null
-interface BillboardFormProps {
-  //there is a chance to have no initial data and in fact we're creating one.
-  initialData: Billboard | null
+interface ColorFormProps {
+  initialData: Color | null
 }
 
-export const BillboardForm: React.FC<BillboardFormProps> = ({
-  initialData,
-}) => {
+export const ColorForm: React.FC<ColorFormProps> = ({ initialData }) => {
   const params = useParams()
   const router = useRouter()
 
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
 
-  //Based on we get "new" or no billboard data, or we get billboardId as params we create or update billboard
-  const title = initialData ? 'ویرایش بیلبورد' : 'ایجاد بیلبورد'
-  const description = initialData
-    ? 'ویرایش بیلبورد.'
-    : 'اضافه کردن بیلبورد جدید'
-  const toastMessage = initialData ? 'بیلبورد آپدیت شد.' : 'بیلبورد ایجاد شد.'
+  const title = initialData ? 'ویرایش رنگ' : 'ایجاد رنگ'
+  const description = initialData ? 'ویرایش رنگ.' : 'اضافه کردن رنگ جدید'
+  const toastMessage = initialData ? 'رنگ آپدیت شد.' : 'رنگ ایجاد شد.'
   const action = initialData ? 'ذخیره تغییرات' : 'ایجاد'
 
-  const form = useForm<BillboardFormValues>({
+  const form = useForm<ColorFormValues>({
     resolver: zodResolver(formSchema),
-    //the second part is for 'null' cases
     defaultValues: initialData || {
-      label: '',
-      imageUrl: '',
+      name: '',
     },
   })
 
-  const onSubmit = async (data: BillboardFormValues) => {
+  const onSubmit = async (data: ColorFormValues) => {
     try {
       setLoading(true)
       if (initialData) {
         await axios.patch(
-          `/api/${params.storeId}/billboards/${params.billboardId}`,
+          `/api/${params.storeId}/colors/${params.colorId}`,
           data
         )
       } else {
-        await axios.post(`/api/${params.storeId}/billboards`, data)
+        await axios.post(`/api/${params.storeId}/colors`, data)
       }
       router.refresh()
-      router.push(`/${params.storeId}/billboards`)
+      router.push(`/${params.storeId}/colors`)
       toast({ title: toastMessage, variant: 'default' })
     } catch (error: any) {
       toast({ title: 'مشکلی پیش آمده.', variant: 'destructive' })
@@ -91,16 +86,14 @@ export const BillboardForm: React.FC<BillboardFormProps> = ({
   const onDelete = async () => {
     try {
       setLoading(true)
-      await axios.delete(
-        `/api/${params.storeId}/billboards/${params.billboardId}`
-      )
+      await axios.delete(`/api/${params.storeId}/colors/${params.colorId}`)
       router.refresh()
-      router.push(`/${params.storeId}/billboards`)
-      toast({ title: 'بیلبورد حذف شد.', variant: 'default' })
+      router.push(`/${params.storeId}/colors`)
+      toast({ title: 'رنگ حذف شد.', variant: 'default' })
     } catch (error: any) {
       toast({
         title:
-          'مطمئن شوید ابتدا همه دسته‌بندی‌هایی که از این بیلبورد استفاده می‌کنند را حذف کرده‌اید.',
+          'مطمئن شوید ابتدا همه محصولاتی که از این رنگ استفاده می‌کنند را حذف کرده‌اید.',
         variant: 'destructive',
       })
     } finally {
@@ -119,7 +112,6 @@ export const BillboardForm: React.FC<BillboardFormProps> = ({
       />
       <div className="flex items-center justify-between">
         <Heading title={title} description={description} />
-        {/* in case there is initial data it means we want to edit it */}
         {initialData && (
           <Button
             disabled={loading}
@@ -137,35 +129,17 @@ export const BillboardForm: React.FC<BillboardFormProps> = ({
           onSubmit={form.handleSubmit(onSubmit)}
           className="space-y-8 w-full"
         >
-          <FormField
-            control={form.control}
-            name="imageUrl"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>عکس پس‌زمینه</FormLabel>
-                <FormControl>
-                  <ImageUpload
-                    value={field.value ? [field.value] : []}
-                    disabled={loading}
-                    onChange={(url) => field.onChange(url)}
-                    onRemove={() => field.onChange('')}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
           <div className="md:grid md:grid-cols-3 gap-8">
             <FormField
               control={form.control}
-              name="label"
+              name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>عنوان</FormLabel>
+                  <FormLabel>نام</FormLabel>
                   <FormControl>
                     <Input
                       disabled={loading}
-                      placeholder="عنوان بیلبورد"
+                      placeholder="نام رنگ"
                       {...field}
                     />
                   </FormControl>
@@ -173,8 +147,32 @@ export const BillboardForm: React.FC<BillboardFormProps> = ({
                 </FormItem>
               )}
             />
+            <FormField
+              control={form.control}
+              name="value"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>مقدار</FormLabel>
+                  <FormControl>
+                    <div className="flex items-center gap-x-4">
+                      <Input
+                        disabled={loading}
+                        placeholder="مقدار رنگ"
+                        {...field}
+                      />
+                      <div
+                        className="border p-4 rounded-full"
+                        // Showing color
+                        style={{ backgroundColor: field.value }}
+                      />
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </div>
-          <Button disabled={loading} className="ml-auto" type="submit">
+          <Button disabled={loading} className="mr-auto" type="submit">
             {action}
           </Button>
         </form>
