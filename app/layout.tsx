@@ -35,7 +35,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" dir="rtl">
+    <html lang="fa-IR" dir="rtl">
       <body className={`${primaryFont.variable} font-farsi adad  antialiased`}>
         <ReduxProviders>
           <ReactQueryProvider>

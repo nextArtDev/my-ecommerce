@@ -1295,3 +1295,20 @@ npm i persian-date
 BEST WAY EVER TO CONVERT date-fns =>
 its a package to convert date to string
 npm i date-fns-jalali
+
+## Getting Query from url
+
+```typescript
+export async function GET(
+  req: Request,
+  { params }: { params: { storeId: string } }
+) {
+//first we destructure req.url
+    const { searchParams } = new URL(req.url)
+    //then we get each field that we want
+    const categoryId = searchParams.get('categoryId') || undefined
+    const colorId = searchParams.get('colorId') || undefined
+    const sizeId = searchParams.get('sizeId') || undefined
+    const isFeatured = searchParams.get('isFeatured')
+
+```
