@@ -86,6 +86,7 @@
     "trez-sms-client": "^1.0.4",
     "typescript": "5.1.6",
     "uuid": "^9.0.0",
+    "zarinpal-pay": "^1.0.3",
     "zod": "^3.21.4"
   },
   "devDependencies": {
