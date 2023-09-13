@@ -1,4 +1,4 @@
-export interface Zarinpal {
+export interface ZarinpalType {
   amount: number
   callback_url: string
   mobile?: string
