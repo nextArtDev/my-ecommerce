@@ -87,8 +87,6 @@
     "trez-sms-client": "^1.0.4",
     "typescript": "5.1.6",
     "uuid": "^9.0.0",
-    "zarinpal-checkout-v4": "^1.0.0",
-    "zarinpal-pay": "^1.0.3",
     "zod": "^3.21.4"
   },
   "devDependencies": {
@@ -97,6 +95,7 @@
     "@types/multer": "^1.4.7",
     "@types/multer-s3": "^3.0.0",
     "@types/uuid": "^9.0.2",
+    "@types/zarinpal-checkout": "^0.2.2",
     "prisma": "^5.1.1"
   }
 }
