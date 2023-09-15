@@ -82,7 +82,6 @@ export async function POST(
     //     },
     //   })
     // })
-    console.log(totalPrice)
 
     const paymentInfo = await driver.requestPayment({
       amount: +totalPrice,
@@ -109,7 +108,7 @@ export async function GET(
     const amount = searchParams.get('amount')
     const referenceId = searchParams.get('referenceId')
 
-    console.log(amount, referenceId)
+    console.log(amount)
     const receipt = await driver.verifyPayment(
       {
         amount: amount, // from database

@@ -6,6 +6,7 @@ import { Toaster } from '@/components/ui/toaster'
 import { ReduxProviders } from '@/redux/Providers'
 import { ModalProvider } from '@/providers/modal-providers'
 import localFont from 'next/font/local'
+import { ThemeProvider } from '@/providers/theme-provider'
 
 const inter = Inter({ subsets: ['latin'] })
 const primaryFont = localFont({
@@ -39,9 +40,11 @@ export default function RootLayout({
       <body className={`${primaryFont.variable} font-farsi adad  antialiased`}>
         <ReduxProviders>
           <ReactQueryProvider>
-            <ModalProvider />
-            <Toaster />
-            {children}
+            <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+              <ModalProvider />
+              <Toaster />
+              {children}
+            </ThemeProvider>
           </ReactQueryProvider>
         </ReduxProviders>
       </body>
