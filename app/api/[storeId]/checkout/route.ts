@@ -90,6 +90,7 @@ export async function POST(
       description: 'Description about the transaction',
     })
 
+    // console.log(paymentInfo.referenceId)
     return NextResponse.json(paymentInfo, { headers: corsHeaders })
   } catch (error) {
     console.log(error)
@@ -116,7 +117,7 @@ export async function GET(
       },
       { searchParams, ...req.body }
     )
-    console.log(receipt)
+    console.log('receipt', receipt)
     return NextResponse.json(receipt)
   } catch (error) {
     console.log(error)

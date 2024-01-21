@@ -20,7 +20,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
   disabled,
   onChange,
   onRemove,
-  value,
+  value: formValue,
 }) => {
   const [isMounted, setIsMounted] = useState(false)
 
@@ -36,7 +36,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
   const handleFilesChange = async (event: ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files!)
     if (files.length < 1) return
-    console.log(files.length)
+    // console.log(files.length)
 
     for (let index = 0; index < files.length; index++) {
       const value = files[index]
@@ -44,8 +44,6 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
       //@ts-ignore
       const url = await uploadToS3(value)
       onChange(url!)
-      console.log(url)
-
       setUrls((current: any) => [...current, url])
     }
   }
@@ -53,7 +51,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
   const onDelete = async (url: string) => {
     const res = await deleteFromS3(url)
     onRemove(url)
-    console.log(res)
+    // console.log(res)
   }
 
   //its place is important and it should be after onUpload to does not break it
@@ -88,7 +86,7 @@ const ImageUpload: React.FC<ImageUploadProps> = ({
         type="button"
         disabled={disabled}
         variant="secondary"
-        onClick={() => (value = urls)}
+        onClick={() => (formValue = [...urls])}
       >
         <input
           // hidden
