@@ -33,7 +33,7 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
       setLoading(true)
       await axios.delete(`/api/${params.storeId}/products/${data.id}`)
       toast({
-        title: 'بیلبورد حذف شد.',
+        title: 'محصول حذف شد.',
         variant: 'default',
       })
       router.refresh()
